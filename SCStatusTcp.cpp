@@ -144,7 +144,7 @@ void SCStatusTcp::receiveTcpReadyRead()
             if (size >= 16) {//返回的数据最小长度为16位,如果大小小于16则数据不完整等待再次读取
                 SeerHeader* header = new SeerHeader;
                 memcpy(header, message.data(), 16);
-                QByteArray headB = QByteArray::fromRawData((char*)header,16);
+
                 uint32_t data_size;//返回所有数据总长值
                 uint16_t revCommand;//返回报文数据类型
                 uint16_t number;//返回序号
@@ -166,6 +166,7 @@ void SCStatusTcp::receiveTcpReadyRead()
                     }else{
                         tempMessage = _lastMessage;
                     }
+                    QByteArray headB = message.left(16);
                     //截取报头16位后面的数据区数据
                     QByteArray json_data = message.mid(16,data_size);
                     qDebug()<<"rev:"<<QString(json_data)<<"  Hex:"<<json_data.toHex();
@@ -246,10 +247,10 @@ QString SCStatusTcp::hexToQString(const QByteArray &b)
 {
     QString str;
     for(int i=0;i<b.size();++i){
-        //每2位空格0x
-        if((!(i%2)&&i/2)||0==i){
-            str+= QString(" 0x");
-        }
+//        //每2位空格0x
+//        if((!(i%2)&&i/2)||0==i){
+//            str+= QString(" 0x");
+//        }
         str +=QString("%1").arg(b.at(i));
     }
     str = str.toUpper();
