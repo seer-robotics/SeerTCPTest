@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>网络协议测试工具</string>
+   <string>SeerTCPTest</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget{
@@ -104,6 +104,16 @@
             <item>
              <property name="text">
               <string>19208</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>19209</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>19210</string>
              </property>
             </item>
            </widget>
