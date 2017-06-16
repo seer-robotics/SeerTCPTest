@@ -29,6 +29,10 @@ private slots:
 
     void on_pushButton_clearInfo_clicked();
 
+    void on_pushButton_zipFile_clicked();
+
+    void on_checkBox_timeOut_clicked(bool checked);
+
 private:
     Ui::SCTcpToolWidget *ui;
     SCStatusTcp *pSCStatusTcp;

@@ -1,6 +1,7 @@
 #include "SCTcpToolWidget.h"
 #include "ui_SCTcpToolWidget.h"
 #include <QDateTime>
+#include <QFileDialog>
 
 SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     QWidget(parent),
@@ -22,11 +23,13 @@ SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     QIntValidator *intV = new QIntValidator(0,65535);
     ui->lineEdit_number->setValidator(intV);
     ui->lineEdit_sendCommand->setValidator(intV);
+
+    on_checkBox_timeOut_clicked(true);
 }
 
 SCTcpToolWidget::~SCTcpToolWidget()
 {
-    //pSCStatusTcp类不用手动释放，qt会自动释放它的子类.
+    //pSCStatusTcp类不用手动释放，qt会自动释放SCTcpToolWidget的子类.
     delete ui;
 }
 
@@ -119,7 +122,20 @@ void SCTcpToolWidget::on_pushButton_send_clicked()
         //报头数据类型
         uint16_t sendCommand = ui->lineEdit_sendCommand->text().toInt();
         //数据区数据
-        QString sendData = ui->textEdit_sendData->toPlainText();
+        QString sendDataStr = ui->textEdit_sendData->toPlainText();
+        QByteArray sendData = sendDataStr.toLatin1();
+        //发送数据size
+        quint64 sendDataSize = sendData.size();
+        //如果数据区有.zip表示是文件直接打开读取发送
+        if(sendDataStr.contains(".zip")){
+            QFile file(sendDataStr);
+            if(file.open(QIODevice::ReadOnly)){
+                sendData = file.readAll();
+                sendDataSize = sendData.size();
+                qDebug()<<"sendData(zip file): size"<<sendDataSize;
+            }
+            file.close();
+        }
         //序号
         uint16_t number = ui->lineEdit_number->text().toInt();
         //清理接收数据区域
@@ -142,12 +158,12 @@ void SCTcpToolWidget::on_pushButton_send_clicked()
 }
 /** 发送后，响应
  * @brief SCTcpToolWidget::slotChangedText
- * @param isOk
- * @param revCommand
- * @param revData
- * @param revHex
- * @param number
- * @param msTime
+ * @param isOk 是否正常返回
+ * @param revCommand 返回的数据类型
+ * @param revData 返回的数据
+ * @param revHex 返回hex
+ * @param number 序号
+ * @param msTime 发送->返回时间 单位：ms
  */
 void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
                                       QByteArray revData,QByteArray revHex,
@@ -217,5 +233,25 @@ void SCTcpToolWidget::slotAutomaticallyScroll()
             cursor.movePosition(QTextCursor::End);
             textedit->setTextCursor(cursor);
         }
+    }
+}
+
+void SCTcpToolWidget::on_pushButton_zipFile_clicked()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, tr("烧写固件"), ".", tr("zip File(*.zip)"));
+    if (filePath.isEmpty())
+    {
+        return;
+    }else{
+        ui->textEdit_sendData->setText(filePath);
+    }
+}
+//是否开启超时
+void SCTcpToolWidget::on_checkBox_timeOut_clicked(bool checked)
+{
+    if(checked){
+        pSCStatusTcp->setTimeOut(ui->spinBox_timeOut->value());
+    }else{
+        pSCStatusTcp->setTimeOut(0);
     }
 }

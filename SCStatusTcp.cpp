@@ -1,7 +1,6 @@
 #include "SCStatusTcp.h"
 #include "SCHeadData.h"
 
-#define M_TimeOut 3000 //等待时间
 
 SCStatusTcp::SCStatusTcp(QObject *parent) : QObject(parent),
     _tcpSocket(Q_NULLPTR)
@@ -24,6 +23,12 @@ void SCStatusTcp::releaseTcpSocket()
         }
     }
 }
+/** 连接
+ * @brief SCStatusTcp::connectHost
+ * @param ip
+ * @param port
+ * @return
+ */
 int SCStatusTcp::connectHost(const QString&ip,quint16 port)
 {
     int ret = 0;
@@ -58,7 +63,7 @@ int SCStatusTcp::connectHost(const QString&ip,quint16 port)
  * @return
  */
 bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
-                               const QString&sendData,
+                               const QByteArray &sendData,
                                uint16_t &number)
 {
     //已发送
@@ -93,7 +98,13 @@ bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
     //---------------------------------------
     //发送的所有数据
     QByteArray tempA = QByteArray::fromRawData((char*)seerData,size);
-    qDebug()<<"send:"<<QString(tempA)<<"  Hex:"<<tempA.toHex();
+    qDebug()<<"send:"<<QString(tempA)<<"  Hex:"<<tempA.toHex()<<"seerData:size:"<<size;
+    QString dataHex = "";
+    if(size<=2048){
+        dataHex = hexToQString(sendData.toHex());
+    }else{
+        dataHex = tr("数据大于2048字节，不打印信息.");
+    }
     //打印信息
     QString info = QString("\n%1--------- 请求 ---------\n"
                            "报文类型:%2 (0x%3) \n"
@@ -111,20 +122,28 @@ bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
             .arg(hexToQString(tempA.left(16).toHex()))
             .arg(sendData.size())
             .arg(QString::number(sendData.size(),16))
-            .arg(sendData)
-            .arg(hexToQString(sendData.toLatin1().toHex()));
+            .arg(QString(sendData))
+            .arg(dataHex);
 
     emit sigPrintInfo(info);
     //---------------------------------------
     _tcpSocket->write((char*)seerData, size);
     delete[] headBuf;
+
+    //-------------
+    qDebug()<<"TCP:_timeOut:"<<_timeOut;
+    //如果_timeOut = 0表示不监听超时
+    if(0 == _timeOut){
+        return true;
+    }
+
     //等待写入
-    if(!_tcpSocket->waitForBytesWritten(M_TimeOut)){
+    if(!_tcpSocket->waitForBytesWritten(_timeOut)){
         _lastError = tr("waitForBytesWritten: time out!");
         return false;
     }
     //等待读取
-    if(!_tcpSocket->waitForReadyRead(M_TimeOut)){
+    if(!_tcpSocket->waitForReadyRead(_timeOut)){
         _lastError = tr("waitForReadyRead: time out!");
         return false;
     }
@@ -171,6 +190,12 @@ void SCStatusTcp::receiveTcpReadyRead()
                     QByteArray json_data = message.mid(16,data_size);
                     qDebug()<<"rev:"<<QString(json_data)<<"  Hex:"<<json_data.toHex();
                     //--------------------------------------
+                    QString dataHex = "";
+                    if(size<=2048){
+                        dataHex = hexToQString(json_data.toHex());
+                    }else{
+                        dataHex = tr("数据大于2048字节，不打印信息.");
+                    }
                     //输出打印信息
                     QString info = QString("%1--------- 响应 ---------\n"
                                            "报文类型:%2 (%3) \n"
@@ -187,7 +212,7 @@ void SCStatusTcp::receiveTcpReadyRead()
                             .arg(json_data.size())
                             .arg(QString::number(json_data.size(),16))
                             .arg(QString(json_data))
-                            .arg(hexToQString(json_data.toHex()));
+                            .arg(dataHex);
 
                     emit sigPrintInfo(info);
                     int msTime = _time.elapsed();
@@ -219,6 +244,16 @@ void SCStatusTcp::receiveTcpReadyRead()
     }
 }
 
+int SCStatusTcp::getTimeOut() const
+{
+    return _timeOut;
+}
+
+void SCStatusTcp::setTimeOut(int timeOut)
+{
+    _timeOut = timeOut;
+}
+
 
 QTcpSocket *SCStatusTcp::tcpSocket() const
 {
@@ -239,18 +274,27 @@ QString SCStatusTcp::lastError() const
 {
     return _lastError;
 }
+/** 获取当前时间
+ * @brief SCStatusTcp::getCurrentDateTime
+ * @return
+ */
 QString SCStatusTcp::getCurrentDateTime()const
 {
     return QDateTime::currentDateTime().toString("[yyyyMMdd|hh:mm:ss:zzz]:");
 }
+/** 16进制全部显示大写
+ * @brief SCStatusTcp::hexToQString
+ * @param b
+ * @return
+ */
 QString SCStatusTcp::hexToQString(const QByteArray &b)
 {
     QString str;
     for(int i=0;i<b.size();++i){
-//        //每2位空格0x
-//        if((!(i%2)&&i/2)||0==i){
-//            str+= QString(" 0x");
-//        }
+        ////        //每2位加入 空格0x
+        ////        if((!(i%2)&&i/2)||0==i){
+        ////            str+= QString(" 0x");
+        ////        }
         str +=QString("%1").arg(b.at(i));
     }
     str = str.toUpper();

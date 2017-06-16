@@ -20,7 +20,7 @@ public:
     void setLastError(const QString &lastError);
 
     bool writeTcpData(uint16_t sendCommand,
-                      const QString &sendData,
+                      const QByteArray &sendData,
                       uint16_t &number);
 
     QTcpSocket *tcpSocket() const;
@@ -30,6 +30,9 @@ public:
     int connectHost(const QString &ip, quint16 port);
     QString getCurrentDateTime() const;
     QString hexToQString(const QByteArray &b);
+    int getTimeOut() const;
+    void setTimeOut(int timeOut);
+
 public slots:
     void receiveTcpReadyRead();
 signals:
@@ -48,6 +51,7 @@ private:
 
     int _oldSendCommand;
     int _oldNumber;
+    int _timeOut;
 
 
 };
