@@ -2,6 +2,7 @@
 #include "ui_SCTcpToolWidget.h"
 #include <QDateTime>
 #include <QFileDialog>
+#include <QHostInfo>
 
 SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     QWidget(parent),
@@ -172,6 +173,7 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
     if(isOk){
 
         int dataSize = 0;
+
         if(ui->checkBox_revHex->isChecked()){//16进制显示
             dataSize = revHex.size();
             ui->textEdit_revData->setText(pSCStatusTcp->hexToQString(revHex));
@@ -189,6 +191,16 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
                                    .arg(QString::number(number,16))
                                    .arg(msTime)
                                    .arg(dataSize));
+        //保存到SeerReceive.temp文件
+        if(ui->checkBox_saveFile->isChecked()){
+            QFile file("SeerReceive.temp");
+            if(file.open(QIODevice::WriteOnly)){
+                file.write(revData);
+            }else{
+                qWarning()<<tr("打开SeerReceive.temp文件失败");
+            }
+            file.close();
+        }
 
     }else{
 
@@ -205,6 +217,8 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
         ui->label_revText->setText(QString("响应的错误: %1 \t\n")
                                    .arg(pSCStatusTcp->lastError()));
     }
+
+
 }
 /** 打印信息
  * @brief SCTcpToolWidget::slotPrintInfo

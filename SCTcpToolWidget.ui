@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>SeerTCPTest</string>
+   <string>网络协议测试工具</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget{
@@ -278,6 +278,13 @@
            <widget class="QCheckBox" name="checkBox_revHex">
             <property name="text">
              <string>十六进制</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBox_saveFile">
+            <property name="text">
+             <string>保存到文件（SeerReceive.temp）</string>
             </property>
            </widget>
           </item>

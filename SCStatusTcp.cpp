@@ -10,6 +10,9 @@ SCStatusTcp::SCStatusTcp(QObject *parent) : QObject(parent),
 SCStatusTcp::~SCStatusTcp()
 {
     releaseTcpSocket();
+    if(_tcpSocket){
+        delete _tcpSocket;
+    }
 }
 /** 释放tcpSocket
  * @brief SCStatusTcp::releaseTcpSocket
@@ -21,6 +24,7 @@ void SCStatusTcp::releaseTcpSocket()
         if(_tcpSocket->isOpen()){
             _tcpSocket->close();
         }
+        _tcpSocket->abort();
     }
 }
 /** 连接
@@ -48,7 +52,7 @@ int SCStatusTcp::connectHost(const QString&ip,quint16 port)
         qDebug()<<"----close _tcpSocket----\n";
         ret = 1;
     }else{
-        _tcpSocket->connectToHost(ip,port);
+        _tcpSocket->connectToHost(ip,port,QTcpSocket::ReadWrite,QTcpSocket::IPv4Protocol);
         _ip = ip;
         _port = port;
         ret = 0;
