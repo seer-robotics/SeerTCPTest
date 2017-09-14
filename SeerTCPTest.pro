@@ -10,16 +10,24 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = SeerTCPTest
 TEMPLATE = app
-
+include(libconfig.prf)
+include(Protobuf/Protobuf.pri);
 
 SOURCES += main.cpp\
         SCTcpToolWidget.cpp \
-    SCStatusTcp.cpp
+    SCStatusTcp.cpp \
+    ProtoBufTool/ProtobufThread.cpp \
+    ProtoBufTool/ProtobufWidget.cpp \
+    Core/BaseThread.cpp
 
 HEADERS  += SCTcpToolWidget.h \
     SCStatusTcp.h \
-    SCHeadData.h
+    SCHeadData.h \
+    ProtoBufTool/ProtobufThread.h \
+    ProtoBufTool/ProtobufWidget.h \
+    Core/BaseThread.h
 
-FORMS    += SCTcpToolWidget.ui
+FORMS    += SCTcpToolWidget.ui \
+    ProtoBufTool/ProtobufWidget.ui
 
 RC_FILE = ICO.rc

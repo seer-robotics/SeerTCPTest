@@ -26,11 +26,15 @@ SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     ui->lineEdit_sendCommand->setValidator(intV);
 
     on_checkBox_timeOut_clicked(true);
+    //-------------------------
+    pProtobufWidget = new ProtobufWidget(ui->tabWidget);
+    ui->tabWidget->addTab(pProtobufWidget,tr("proto二进制/Json转换"));
 }
 
 SCTcpToolWidget::~SCTcpToolWidget()
 {
     //pSCStatusTcp类不用手动释放，qt会自动释放SCTcpToolWidget的子类.
+    delete pProtobufWidget;
     delete ui;
 }
 

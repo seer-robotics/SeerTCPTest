@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "SCStatusTcp.h"
+#include "ProtoBufTool/ProtobufWidget.h"
 
 namespace Ui {
 class SCTcpToolWidget;
@@ -37,6 +38,7 @@ private slots:
 private:
     Ui::SCTcpToolWidget *ui;
     SCStatusTcp *pSCStatusTcp;
+    ProtobufWidget *pProtobufWidget;
 };
 
 #endif // SCTCPTOOLWIDGET_H

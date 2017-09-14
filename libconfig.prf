@@ -1,0 +1,63 @@
+libPath = $$PWD
+
+CONFIG(debug, debug|release){
+    #debug编译环境
+    #指定 debug 编译输出文件路径
+    win32 {
+    contains(QT_ARCH, i386) {
+        win32-g++{
+            message("mingw 32-bit")
+            libPath = $$PWD/bin_mingw_x86_debug/
+        }else{
+            message("msvc 32-bit")
+            libPath = $$PWD/bin_msvc_x86_debug/
+        }
+    }else {
+        win32-g++{
+            message("mingw 64-bit")
+            libPath = $$PWD/bin_mingw_x64_debug/
+        }else{
+            message("msvc 64-bit")
+            libPath = $$PWD/bin_msvc_x64_debug/
+        }
+      }
+            DESTDIR = $${libPath}
+            LIBS += -L$${libPath}
+    }
+    unix {
+        target.path = /usr/lib
+        INSTALLS += target
+    }
+}
+CONFIG(release, debug|release){
+    #release编译环境
+    #指定 release 编译输出文件路径
+
+    win32 {
+    contains(QT_ARCH, i386) {
+        win32-g++{
+            message("mingw 32-bit")
+            libPath = $$PWD/bin_mingw_x86_release/
+        }else{
+            message("msvc 32-bit")
+            libPath = $$PWD/bin_msvc_x86_release/
+        }
+    }else {
+        win32-g++{
+            message("mingw 64-bit")
+            libPath = $$PWD/bin_mingw_x64_release/
+        }else{
+            message("msvc 64-bit")
+            libPath = $$PWD/bin_msvc_x64_release/
+        }
+      }
+            DESTDIR = $${libPath}
+            LIBS += -L$${libPath}
+    }
+    unix {
+        target.path = /usr/lib
+        INSTALLS += target
+    }
+}
+
+#win32:RC_FILE = $$PWD/SCMainWindow/ICO.rc
