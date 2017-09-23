@@ -65,23 +65,24 @@ void ProtobufWidget::slotProtobufThreadFinish()
             break;
         case 1:
         {
-            QString path = QFileDialog::getSaveFileName(this, tr("message"), QString("./untitled.message"), tr("message(*.message)"));
-            if (!path.isEmpty()) {
-                QFile file(path);
-                if(file.open(QIODevice::WriteOnly)){
-                    if(!pProtobufThread->msgByteArray().isEmpty()){
+//            QString path = QFileDialog::getSaveFileName(this, tr("message"), QString("./untitled.message"), tr("message(*.message)"));
+//            if (!path.isEmpty()) {
+//                QFile file(path);
+//                if(file.open(QIODevice::WriteOnly)){
+//                    if(!pProtobufThread->msgByteArray().isEmpty()){
 
-                        file.write(pProtobufThread->msgByteArray());
+//                        file.write(pProtobufThread->msgByteArray());
 
-                    }else{
-                        ui->label_status->setText(tr("message二进制文件数据为空."));
-                    }
-                    file.close();
-                }else{
-                    ui->label_status->setText(QString("打开【%1】文件失败.").arg(path));
-                }
-               ui->label_status->setText(QString("已保存：%1").arg(path));
-            }
+//                    }else{
+//                        ui->label_status->setText(tr("message二进制文件数据为空."));
+//                    }
+//                    file.close();
+//                }else{
+//                    ui->label_status->setText(QString("打开【%1】文件失败.").arg(path));
+//                }
+//               ui->label_status->setText(QString("已保存：%1").arg(path));
+             ui->label_status->setText(QString("已保存：%1").arg(pProtobufThread->outBinaryFilePath()));
+//            }
         }
             break;
         default:

@@ -1,6 +1,6 @@
 #include "ProtobufThread.h"
-
-
+#include <ostream>
+using namespace std;
 ProtobufThread::ProtobufThread(QObject *parent) : BaseThread(parent)
 {
 
@@ -60,6 +60,16 @@ void ProtobufThread::setMsgByteArray(const QByteArray &msgByteArray)
     _msgByteArray = msgByteArray;
 }
 
+QString ProtobufThread::outBinaryFilePath() const
+{
+    return _outBinaryFilePath;
+}
+
+void ProtobufThread::setOutBinaryFilePath(const QString &outBinaryFilePath)
+{
+    _outBinaryFilePath = outBinaryFilePath;
+}
+
 QString ProtobufThread::jsonData() const
 {
     return _jsonData;
@@ -85,7 +95,7 @@ void ProtobufThread::run()
 
     //---------
     switch (this->threadType()) {
-    case 0://proto->json
+    case 0://proto::message->json
     {
         const google::protobuf::FileDescriptor* filedescriptor = importer.Import(protoFileName);
         if (filedescriptor) {
@@ -124,7 +134,7 @@ void ProtobufThread::run()
         }
     }
         break;
-    case 1://json->proto
+    case 1://json->proto::message
     {
         QString jsonStr;
         if(_jsonIsFile){
@@ -148,8 +158,12 @@ void ProtobufThread::run()
                 google::protobuf::util::Status convertStatus = google::protobuf::util::JsonStringToMessage(jsonStr.toStdString(),msg);
                 if (convertStatus.ok()) {
                     qDebug()<<"convertStatus.ok()";
-                  setMsgByteArray(QByteArray::fromStdString(msg->SerializeAsString()));
-
+                    _outBinaryFilePath = "./outStream.message";
+                    std::ofstream ostram(_outBinaryFilePath.toStdString(),std::ios::binary);
+                    if(!msg->SerializeToOstream(&ostram)){
+                           setLastError("导出地图错误: "+QString::fromStdString(msg->DebugString()));
+                    }
+//                  setMsgByteArray(QByteArray::fromStdString(msg->SerializeToOstream()));
                 }else {
                     setLastError("JsonStringToMessage error: "+ QString::fromStdString(convertStatus.ToString()));
                 }

@@ -30,4 +30,4 @@ HEADERS  += SCTcpToolWidget.h \
 FORMS    += SCTcpToolWidget.ui \
     ProtoBufTool/ProtobufWidget.ui
 
-RC_FILE = ICO.rc
+win32:RC_FILE = ICO.rc

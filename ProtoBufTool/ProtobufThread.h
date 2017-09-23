@@ -39,12 +39,16 @@ public:
     QByteArray msgByteArray() const;
     void setMsgByteArray(const QByteArray &msgByteArray);
 
+    QString outBinaryFilePath() const;
+    void setOutBinaryFilePath(const QString &outBinaryFilePath);
+
 private:
     QFileInfo _protoFileInfo;
     QString _packageName;
     QString _messageName;
     QString _binaryMessageName;
     QString _jsonData;
+    QString _outBinaryFilePath;
     bool _jsonIsFile = false;
     bool _prettyJSON = true;
     QByteArray _msgByteArray;

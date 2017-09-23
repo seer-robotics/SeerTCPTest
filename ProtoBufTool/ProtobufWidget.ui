@@ -156,6 +156,13 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>注：.proto文件中有import &quot;AAA/xxx.proto&quot;相对路径下可以索引（也可以把xxx.proto拷贝到当前路径下import改为-&gt; import&quot;xxx.proto&quot;转换）</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
