@@ -105,7 +105,7 @@ void ProtobufThread::run()
                 const google::protobuf::Message *message = factory.GetPrototype(descriptor);
                 google::protobuf::Message *msg = message->New();
 
-                std::ifstream in;
+                google::protobuf::ifstream in;
                 in.open(binaryMessageName, std::ios::in | std::ios::binary);
                 if (in.is_open()) {
                     msg->ParseFromIstream(&in);
@@ -159,8 +159,9 @@ void ProtobufThread::run()
                 if (convertStatus.ok()) {
                     qDebug()<<"convertStatus.ok()";
                     _outBinaryFilePath = "./outStream.message";
-                    std::ofstream ostram(_outBinaryFilePath.toStdString(),std::ios::binary);
-                    if(!msg->SerializeToOstream(&ostram)){
+                    google::protobuf::ofstream ofs(_outBinaryFilePath.toStdString(),ios::out |ios::binary);
+                    //std::ofstream ostram(_outBinaryFilePath.toStdString(),std::ios::binary);
+                    if(!msg->SerializeToOstream(&ofs)){
                            setLastError("导出地图错误: "+QString::fromStdString(msg->DebugString()));
                     }
 //                  setMsgByteArray(QByteArray::fromStdString(msg->SerializeToOstream()));
