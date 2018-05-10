@@ -1,4 +1,4 @@
-#include "SCTcpToolWidget.h"
+﻿#include "SCTcpToolWidget.h"
 #include "ui_SCTcpToolWidget.h"
 #include <QDateTime>
 #include <QFileDialog>
@@ -28,7 +28,7 @@ SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     on_checkBox_timeOut_clicked(true);
     //-------------------------
     pProtobufWidget = new ProtobufWidget(ui->tabWidget);
-    ui->tabWidget->addTab(pProtobufWidget,tr("proto二进制/Json转换"));
+    ui->tabWidget->addTab(pProtobufWidget,QStringLiteral("proto二进制/Json转换"));
 }
 
 SCTcpToolWidget::~SCTcpToolWidget()
@@ -46,7 +46,8 @@ void SCTcpToolWidget::on_pushButton_connect_clicked(bool checked)
 {
     switch (pSCStatusTcp->connectHost(ui->lineEdit_ip->text(),ui->comboBox_port->currentText().toInt())) {
     case 1:
-        ui->pushButton_connect->setText(tr("开始连接"));
+        //        ui->pushButton_connect->setText(tr("开始连接"));
+        ui->pushButton_connect->setText(tr("connecting"));
         break;
 
     default:
@@ -66,7 +67,8 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
     case QAbstractSocket::UnconnectedState:
         info = "QAbstractSocket::UnconnectedState";
         ui->comboBox_port->setEnabled(true);
-        ui->pushButton_connect->setText(tr("开始连接"));
+        //        ui->pushButton_connect->setText(tr("开始连接"));
+        ui->pushButton_connect->setText(tr("connecting"));
         break;
     case QAbstractSocket::HostLookupState:
         info = "QAbstractSocket::HostLookupState";
@@ -74,13 +76,13 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
 
     case QAbstractSocket::ConnectingState:
         info = "QAbstractSocket::ConnectingState";
-        ui->pushButton_connect->setText(tr("正在连接..."));
+        ui->pushButton_connect->setText(QStringLiteral("正在连接..."));
         ui->comboBox_port->setEnabled(false);
         break;
     case QAbstractSocket::ConnectedState:
     {
         info = "QAbstractSocket::ConnectedState \n";
-        ui->pushButton_connect->setText(tr("断开连接"));
+        ui->pushButton_connect->setText(QStringLiteral("断开连接"));
     }
         break;
     case QAbstractSocket::BoundState:
@@ -92,7 +94,8 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
     case QAbstractSocket::ClosingState:
         info = "QAbstractSocket::ClosingState";
         ui->comboBox_port->setEnabled(true);
-        ui->pushButton_connect->setText(tr("开始连接"));
+        //        ui->pushButton_connect->setText(tr("开始连接"));
+        ui->pushButton_connect->setText(tr("connecting"));
         break;
     }
     ui->textEdit_info->append(QString("%1 IP:%2:%3 %4")
@@ -113,7 +116,8 @@ void SCTcpToolWidget::receiveTcpError(QAbstractSocket::SocketError error)
                               .arg(ui->lineEdit_ip->text())
                               .arg(ui->comboBox_port->currentText()));
     ui->comboBox_port->setEnabled(true);
-    ui->pushButton_connect->setText(tr("开始连接"));
+    //    ui->pushButton_connect->setText(tr("开始连接"));
+    ui->pushButton_connect->setText(tr("connecting"));
 }
 
 /** 发送
@@ -121,20 +125,26 @@ void SCTcpToolWidget::receiveTcpError(QAbstractSocket::SocketError error)
  */
 void SCTcpToolWidget::on_pushButton_send_clicked()
 {
-    if(pSCStatusTcp->tcpSocket()
-            &&pSCStatusTcp->tcpSocket()->state()==QAbstractSocket::ConnectedState)
+    if (pSCStatusTcp->tcpSocket() && pSCStatusTcp->tcpSocket()->state()==QAbstractSocket::ConnectedState)
     {
         //报头数据类型
+        //        uint16_t sendCommand = ui->lineEdit_sendCommand->text().toInt();
         uint16_t sendCommand = ui->lineEdit_sendCommand->text().toInt();
         //数据区数据
+        //        QString sendDataStr = ui->textEdit_sendData->toPlainText();
+        //        QByteArray sendData = sendDataStr.toLatin1();
         QString sendDataStr = ui->textEdit_sendData->toPlainText();
         QByteArray sendData = sendDataStr.toLatin1();
         //发送数据size
+        //        quint64 sendDataSize = sendData.size();
         quint64 sendDataSize = sendData.size();
         //如果数据区有.zip表示是文件直接打开读取发送
-        if(sendDataStr.contains(".zip")){
+        if(sendDataStr.contains(".zip"))
+        {
             QFile file(sendDataStr);
-            if(file.open(QIODevice::ReadOnly)){
+
+            if(file.open(QIODevice::ReadOnly))
+            {
                 sendData = file.readAll();
                 sendDataSize = sendData.size();
                 qDebug()<<"sendData(zip file): size"<<sendDataSize;
@@ -142,22 +152,26 @@ void SCTcpToolWidget::on_pushButton_send_clicked()
             file.close();
         }
         //序号
+        //        uint16_t number = ui->lineEdit_number->text().toInt();
         uint16_t number = ui->lineEdit_number->text().toInt();
         //清理接收数据区域
+        //        ui->textEdit_revData->clear();
         ui->textEdit_revData->clear();
         //发送数据
         if(!pSCStatusTcp->writeTcpData(sendCommand,sendData,number))
         {
-            slotPrintInfo(tr("<font color=\"red\">"
-                             "%1--------- 发送错误----------\n"
-                             "发送的报文类型:%2  \n"
-                             "错误: %3"
-                             "</font>")
+            slotPrintInfo(QString(QStringLiteral("<font color=\"red\">"
+                                                 "%1--------- 发送错误----------\n"
+                                                 "发送的报文类型:%2  \n"
+                                                 "错误: %3"
+                                                 "</font>"))
                           .arg(pSCStatusTcp->getCurrentDateTime())
                           .arg(sendCommand)
                           .arg(pSCStatusTcp->lastError()));
         }
-    }else{
+    }
+    else
+    {
         ui->textEdit_info->append(QString("UnconnectedState"));
     }
 }
@@ -185,10 +199,10 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
             dataSize = revData.size();
             ui->textEdit_revData->setText(QString(revData));
         }
-        ui->label_revText->setText(QString("响应的报文类型: %1 (0x%2) \t\n\n"
-                                           "序号: %4 (0x%5)\t\n\n"
-                                           "响应时间: %6 ms \t\n\n"
-                                           "响应数据区字节数: %7")
+        ui->label_revText->setText(QString(QStringLiteral("响应的报文类型: %1 (0x%2) \t\n\n"
+                                                          "序号: %4 (0x%5)\t\n\n"
+                                                          "响应时间: %6 ms \t\n\n"
+                                                          "响应数据区字节数: %7"))
                                    .arg(revCommand)
                                    .arg(QString::number(revCommand,16))
                                    .arg(number)
@@ -201,24 +215,24 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
             if(file.open(QIODevice::WriteOnly)){
                 file.write(revData);
             }else{
-                qWarning()<<tr("打开SeerReceive.temp文件失败");
+                qWarning()<<QStringLiteral("打开SeerReceive.temp文件失败");
             }
             file.close();
         }
 
     }else{
 
-        slotPrintInfo(tr("<font color=\"red\">"
-                         "%1--------- 返回错误----------\n"
-                         "报文类型:%2  \n"
-                         "错误: %3"
-                         "</font>")
+        slotPrintInfo(QString(QStringLiteral("<font color=\"red\">"
+                                             "%1--------- 返回错误----------\n"
+                                             "报文类型:%2  \n"
+                                             "错误: %3"
+                                             "</font>"))
                       .arg(pSCStatusTcp->getCurrentDateTime())
                       .arg(revCommand)
                       .arg(pSCStatusTcp->lastError()));
 
         ui->textEdit_revData->setText(QString(revData));
-        ui->label_revText->setText(QString("响应的错误: %1 \t\n")
+        ui->label_revText->setText(QString(QStringLiteral("响应的错误: %1 \t\n"))
                                    .arg(pSCStatusTcp->lastError()));
     }
 
@@ -244,9 +258,11 @@ void SCTcpToolWidget::on_pushButton_clearInfo_clicked()
  */
 void SCTcpToolWidget::slotAutomaticallyScroll()
 {
-    if(ui->checkBox_automatically->isChecked()){
+    if(ui->checkBox_automatically->isChecked())
+    {
         QTextEdit *textedit = (QTextEdit*)sender();
-        if(textedit){
+        if(textedit)
+        {
             QTextCursor cursor = textedit->textCursor();
             cursor.movePosition(QTextCursor::End);
             textedit->setTextCursor(cursor);
@@ -256,11 +272,12 @@ void SCTcpToolWidget::slotAutomaticallyScroll()
 
 void SCTcpToolWidget::on_pushButton_zipFile_clicked()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, tr("烧写固件"), ".", tr("zip File(*.zip)"));
-    if (filePath.isEmpty())
-    {
+
+    QString filePath = QFileDialog::getOpenFileName(this, QString("rewrite"), ".", QString("zip File(*.zip"));
+
+    if (filePath.isEmpty()) {
         return;
-    }else{
+    } else{
         ui->textEdit_sendData->setText(filePath);
     }
 }
@@ -271,5 +288,22 @@ void SCTcpToolWidget::on_checkBox_timeOut_clicked(bool checked)
         pSCStatusTcp->setTimeOut(ui->spinBox_timeOut->value());
     }else{
         pSCStatusTcp->setTimeOut(0);
+    }
+}
+
+void SCTcpToolWidget::timerEvent(QTimerEvent *event)
+{
+    if(event->timerId() == _queryTimeID){
+        if(ui->pushButton_send->isEnabled()){
+            on_pushButton_send_clicked();
+        }
+    }
+}
+void SCTcpToolWidget::on_checkBox_queryTime_clicked(bool checked)
+{
+    if(checked){
+        _queryTimeID = this->startTimer(ui->spinBox_queryTime->value());
+    }else{
+        killTimer(_queryTimeID);
     }
 }

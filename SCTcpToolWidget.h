@@ -1,4 +1,4 @@
-#ifndef SCTCPTOOLWIDGET_H
+﻿#ifndef SCTCPTOOLWIDGET_H
 #define SCTCPTOOLWIDGET_H
 
 #include <QWidget>
@@ -17,6 +17,7 @@ public:
     explicit SCTcpToolWidget(QWidget *parent = 0);
     ~SCTcpToolWidget();
 
+    void timerEvent(QTimerEvent *event);
 public slots:
     void stateChanged(QAbstractSocket::SocketState state);
     void receiveTcpError(QAbstractSocket::SocketError error);
@@ -35,10 +36,13 @@ private slots:
     void on_checkBox_timeOut_clicked(bool checked);
 
 
+    void on_checkBox_queryTime_clicked(bool checked);
+
 private:
     Ui::SCTcpToolWidget *ui;
     SCStatusTcp *pSCStatusTcp;
     ProtobufWidget *pProtobufWidget;
+    int _queryTimeID;
 };
 
 #endif // SCTCPTOOLWIDGET_H
