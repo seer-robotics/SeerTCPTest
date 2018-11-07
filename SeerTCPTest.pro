@@ -4,9 +4,10 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+CONFIG += c++11
 
 TARGET = SeerTCPTest
 TEMPLATE = app
@@ -18,14 +19,16 @@ SOURCES += main.cpp\
     SCStatusTcp.cpp \
     ProtoBufTool/ProtobufThread.cpp \
     ProtoBufTool/ProtobufWidget.cpp \
-    Core/BaseThread.cpp
+    Core/BaseThread.cpp \
+    Core/SqliteClass.cpp
 
 HEADERS  += SCTcpToolWidget.h \
     SCStatusTcp.h \
     SCHeadData.h \
     ProtoBufTool/ProtobufThread.h \
     ProtoBufTool/ProtobufWidget.h \
-    Core/BaseThread.h
+    Core/BaseThread.h \
+    Core/SqliteClass.h
 
 FORMS    += SCTcpToolWidget.ui \
     ProtoBufTool/ProtobufWidget.ui

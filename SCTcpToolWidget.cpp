@@ -9,12 +9,16 @@ SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     ui(new Ui::SCTcpToolWidget)
 {
     ui->setupUi(this);
+
+    //db类
+    initDb();
+
     //自动滚动
     connect(ui->textEdit_info,SIGNAL(textChanged()),this,SLOT(slotAutomaticallyScroll()));
     //tcp
-    pSCStatusTcp = new SCStatusTcp(this);
-    connect(pSCStatusTcp,SIGNAL(sigPrintInfo(QString)),this,SLOT(slotPrintInfo(QString)));
-    connect(pSCStatusTcp,SIGNAL(sigChangedText(bool,int,QByteArray,QByteArray,int,int)),
+    _pSCStatusTcp = new SCStatusTcp(this);
+    connect(_pSCStatusTcp,SIGNAL(sigPrintInfo(QString)),this,SLOT(slotPrintInfo(QString)));
+    connect(_pSCStatusTcp,SIGNAL(sigChangedText(bool,int,QByteArray,QByteArray,int,int)),
             this,SLOT(slotChangedText(bool,int,QByteArray,QByteArray,int,int)));
     //ip正则
     QRegExp regExp("\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b");
@@ -27,8 +31,8 @@ SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
 
     on_checkBox_timeOut_clicked(true);
     //-------------------------
-    pProtobufWidget = new ProtobufWidget(ui->tabWidget);
-    ui->tabWidget->addTab(pProtobufWidget,QStringLiteral("proto二进制/Json转换"));
+    _pProtobufWidget = new ProtobufWidget(ui->tabWidget);
+    ui->tabWidget->addTab(_pProtobufWidget,QStringLiteral("proto二进制/Json转换"));
 }
 
 SCTcpToolWidget::~SCTcpToolWidget()
@@ -37,13 +41,41 @@ SCTcpToolWidget::~SCTcpToolWidget()
     delete ui;
 }
 
+void SCTcpToolWidget::initDb()
+{
+    _pSqliteClass = new SqliteClass(this);
+    if(!_pSqliteClass->createConnection(QFileInfo("./Roboshop.db").absoluteFilePath())){
+        SCWarning<<_pSqliteClass->errorString();
+        return;
+    }
+    if( !_pSqliteClass->getProtocol()){
+        SCWarning<<_pSqliteClass->errorString();
+        return;
+    }
+    QMap<int ,QString> reqDescriptionMap = _pSqliteClass->getProtocol()->ReqValueReqDescriptionMap;
+    for(int i=0; i<reqDescriptionMap.keys().size(); ++i){
+        auto key = reqDescriptionMap.keys().at(i);
+        if(_pSqliteClass->getProtocol()->getPort(key) == 10000) continue;
+        QString desc = QString("%1 : %2")
+                .arg(reqDescriptionMap.value(key))
+                .arg(_pSqliteClass->getProtocol()->getReq(key));
+        ui->comboBox_allReq->addItem(desc,key);
+    }
+    connect(ui->comboBox_allReq,SIGNAL(currentIndexChanged(int)),this,SLOT(slotAllReqCurrentChanged(int)));
+}
+
+void SCTcpToolWidget::slotAllReqCurrentChanged(int index)
+{
+    ui->lineEdit_sendCommand->setText(QString("%1").arg(ui->comboBox_allReq->itemData(index).toInt()));
+}
+
 /** socket连接/断开
  * @brief SCTcpToolWidget::on_pushButton_connect_clicked
  * @param checked
  */
 void SCTcpToolWidget::on_pushButton_connect_clicked(bool checked)
 {
-    switch (pSCStatusTcp->connectHost(ui->lineEdit_ip->text(),ui->comboBox_port->currentText().toInt())) {
+    switch (_pSCStatusTcp->connectHost(ui->lineEdit_ip->text(),ui->comboBox_port->currentText().toInt())) {
     case 1:
         ui->pushButton_connect->setText(QStringLiteral("开始连接"));
         break;
@@ -95,7 +127,7 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
         break;
     }
     ui->textEdit_info->append(QString("%1 IP:%2:%3 %4")
-                              .arg(pSCStatusTcp->getCurrentDateTime())
+                              .arg(_pSCStatusTcp->getCurrentDateTime())
                               .arg(ui->lineEdit_ip->text())
                               .arg(ui->comboBox_port->currentText())
                               .arg(info));
@@ -107,7 +139,7 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
 void SCTcpToolWidget::receiveTcpError(QAbstractSocket::SocketError error)
 {
     ui->textEdit_info->append(QString("%1  connect error[%2]: IP:%3:%4")
-                              .arg(pSCStatusTcp->getCurrentDateTime())
+                              .arg(_pSCStatusTcp->getCurrentDateTime())
                               .arg(error)
                               .arg(ui->lineEdit_ip->text())
                               .arg(ui->comboBox_port->currentText()));
@@ -121,7 +153,7 @@ void SCTcpToolWidget::receiveTcpError(QAbstractSocket::SocketError error)
  */
 void SCTcpToolWidget::on_pushButton_send_clicked()
 {
-    if (pSCStatusTcp->tcpSocket() && pSCStatusTcp->tcpSocket()->state()==QAbstractSocket::ConnectedState)
+    if (_pSCStatusTcp->tcpSocket() && _pSCStatusTcp->tcpSocket()->state()==QAbstractSocket::ConnectedState)
     {
         //报头数据类型
         uint16_t sendCommand = ui->lineEdit_sendCommand->text().toInt();
@@ -153,16 +185,16 @@ void SCTcpToolWidget::on_pushButton_send_clicked()
         ui->textEdit_revData->clear();
 
         //发送数据
-        if(!pSCStatusTcp->writeTcpData(sendCommand,sendData,number))
+        if(!_pSCStatusTcp->writeTcpData(sendCommand,sendData,number))
         {
             slotPrintInfo(QString(QStringLiteral("<font color=\"red\">"
                                                  "%1--------- 发送错误----------\n"
                                                  "发送的报文类型:%2  \n"
                                                  "错误: %3"
                                                  "</font>"))
-                          .arg(pSCStatusTcp->getCurrentDateTime())
+                          .arg(_pSCStatusTcp->getCurrentDateTime())
                           .arg(sendCommand)
-                          .arg(pSCStatusTcp->lastError()));
+                          .arg(_pSCStatusTcp->lastError()));
         }
     }
     else
@@ -189,7 +221,7 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
 
         if(ui->checkBox_revHex->isChecked()){//16进制显示
             dataSize = revHex.size();
-            ui->textEdit_revData->setText(pSCStatusTcp->hexToQString(revHex));
+            ui->textEdit_revData->setText(_pSCStatusTcp->hexToQString(revHex));
         }else{//文本显示
             dataSize = revData.size();
             ui->textEdit_revData->setText(QString(revData));
@@ -222,13 +254,13 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
                                              "报文类型:%2  \n"
                                              "错误: %3"
                                              "</font>"))
-                      .arg(pSCStatusTcp->getCurrentDateTime())
+                      .arg(_pSCStatusTcp->getCurrentDateTime())
                       .arg(revCommand)
-                      .arg(pSCStatusTcp->lastError()));
+                      .arg(_pSCStatusTcp->lastError()));
 
         ui->textEdit_revData->setText(QString(revData));
         ui->label_revText->setText(QString(QStringLiteral("响应的错误: %1 \t\n"))
-                                   .arg(pSCStatusTcp->lastError()));
+                                   .arg(_pSCStatusTcp->lastError()));
     }
 
 
@@ -280,9 +312,9 @@ void SCTcpToolWidget::on_pushButton_zipFile_clicked()
 void SCTcpToolWidget::on_checkBox_timeOut_clicked(bool checked)
 {
     if(checked){
-        pSCStatusTcp->setTimeOut(ui->spinBox_timeOut->value());
+        _pSCStatusTcp->setTimeOut(ui->spinBox_timeOut->value());
     }else{
-        pSCStatusTcp->setTimeOut(0);
+        _pSCStatusTcp->setTimeOut(0);
     }
 }
 

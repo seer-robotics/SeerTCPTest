@@ -1,4 +1,4 @@
-#include "ProtobufWidget.h"
+﻿#include "ProtobufWidget.h"
 #include "ui_ProtobufWidget.h"
 #include <QFileDialog>
 
@@ -7,8 +7,8 @@ ProtobufWidget::ProtobufWidget(QWidget *parent) :
     ui(new Ui::ProtobufWidget)
 {
     ui->setupUi(this);
-    pProtobufThread = new ProtobufThread(this);
-    connect(pProtobufThread,&ProtobufThread::finished,this,&ProtobufWidget::slotProtobufThreadFinish);
+    _pProtobufThread = new ProtobufThread(this);
+    connect(_pProtobufThread,&ProtobufThread::finished,this,&ProtobufWidget::slotProtobufThreadFinish);
 }
 
 ProtobufWidget::~ProtobufWidget()
@@ -18,7 +18,7 @@ ProtobufWidget::~ProtobufWidget()
 
 void ProtobufWidget::on_pushButton_Conversion_clicked()
 {
-    if(pProtobufThread->isRunning()) {
+    if(_pProtobufThread->isRunning()) {
         ui->label_status->setText(tr("线程正在运行中..."));
         return;
     }
@@ -28,7 +28,7 @@ void ProtobufWidget::on_pushButton_Conversion_clicked()
     }else if(ui->radioButton_2->isChecked()){
         threadType = 1;
     }
-    if(pProtobufThread->initProtobufThread(ui->lineEdit_protoFilePath->text(),
+    if(_pProtobufThread->initProtobufThread(ui->lineEdit_protoFilePath->text(),
                                            ui->lineEdit_packageName->text(),
                                            ui->lineEdit_messageName->text(),
                                            ui->lineEdit_conversionFilePath->text(),
@@ -38,21 +38,21 @@ void ProtobufWidget::on_pushButton_Conversion_clicked()
                                            ))
     {
         ui->label_status->setText("正在转换...");
-        pProtobufThread->start();
+        _pProtobufThread->start();
     }else{
-        ui->label_status->setText(QString("error: %1").arg(pProtobufThread->lastError()));
+        ui->label_status->setText(QString("error: %1").arg(_pProtobufThread->lastError()));
     }
 }
 void ProtobufWidget::slotProtobufThreadFinish()
 {
-    if(!pProtobufThread->lastError().isEmpty()){
-        ui->label_status->setText(QString("error: %1").arg(pProtobufThread->lastError()));
+    if(!_pProtobufThread->lastError().isEmpty()){
+        ui->label_status->setText(QString("error: %1").arg(_pProtobufThread->lastError()));
     }else{
-        switch (pProtobufThread->threadType()) {
+        switch (_pProtobufThread->threadType()) {
         case 0:
         {
             ui->label_status->setText(tr("proto 二进制转 json 成功."));
-            ui->textEdit_json->setText(pProtobufThread->jsonData());
+            ui->textEdit_json->setText(_pProtobufThread->jsonData());
             QString path = QFileDialog::getSaveFileName(this, tr("json"), QString("./untitled.json"), tr("JSON(*.json)"));
             if (!path.isEmpty()) {
                 QFile file(path);
@@ -69,9 +69,9 @@ void ProtobufWidget::slotProtobufThreadFinish()
 //            if (!path.isEmpty()) {
 //                QFile file(path);
 //                if(file.open(QIODevice::WriteOnly)){
-//                    if(!pProtobufThread->msgByteArray().isEmpty()){
+//                    if(!_pProtobufThread->msgByteArray().isEmpty()){
 
-//                        file.write(pProtobufThread->msgByteArray());
+//                        file.write(_pProtobufThread->msgByteArray());
 
 //                    }else{
 //                        ui->label_status->setText(tr("message二进制文件数据为空."));
@@ -81,7 +81,7 @@ void ProtobufWidget::slotProtobufThreadFinish()
 //                    ui->label_status->setText(QString("打开【%1】文件失败.").arg(path));
 //                }
 //               ui->label_status->setText(QString("已保存：%1").arg(path));
-             ui->label_status->setText(QString("已保存：%1").arg(pProtobufThread->outBinaryFilePath()));
+             ui->label_status->setText(QString("已保存：%1").arg(_pProtobufThread->outBinaryFilePath()));
 //            }
         }
             break;

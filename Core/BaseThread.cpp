@@ -1,6 +1,6 @@
-#include "BaseThread.h"
+﻿#include "BaseThread.h"
 
-QString BaseThread::_lastError = "";
+
 BaseThread::BaseThread(QObject *parent) : QThread(parent)
 {
 

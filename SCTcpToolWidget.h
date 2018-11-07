@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "SCStatusTcp.h"
 #include "ProtoBufTool/ProtobufWidget.h"
+#include "Core/SqliteClass.h"
 
 namespace Ui {
 class SCTcpToolWidget;
@@ -18,6 +19,7 @@ public:
     ~SCTcpToolWidget();
 
     void timerEvent(QTimerEvent *event);
+    void initDb();
 public slots:
     void stateChanged(QAbstractSocket::SocketState state);
     void receiveTcpError(QAbstractSocket::SocketError error);
@@ -25,6 +27,7 @@ public slots:
 
     void slotChangedText(bool isOk, int revCommand, QByteArray revData, QByteArray revHex, int number, int msTime);
     void slotAutomaticallyScroll();
+    void slotAllReqCurrentChanged(int index);
 private slots:
     void on_pushButton_connect_clicked(bool checked);
     void on_pushButton_send_clicked();
@@ -40,9 +43,10 @@ private slots:
 
 private:
     Ui::SCTcpToolWidget *ui;
-    SCStatusTcp *pSCStatusTcp;
-    ProtobufWidget *pProtobufWidget;
-    int _queryTimeID;
+    SCStatusTcp *_pSCStatusTcp = Q_NULLPTR;
+    ProtobufWidget *_pProtobufWidget = Q_NULLPTR;
+    SqliteClass *_pSqliteClass = Q_NULLPTR;
+    int _queryTimeID = -1;
 };
 
 #endif // SCTCPTOOLWIDGET_H
