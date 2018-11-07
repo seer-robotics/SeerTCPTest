@@ -77,35 +77,20 @@ bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
     //已发送
     _oldSendCommand = sendCommand;
     _oldNumber = number;
+
     //数据区长度
-//    int size = 0;
     int size = 0;
+
     //报文头部数据
-//    uint8_t* headBuf = Q_NULLPTR;
-//    int headSize = 0;
     uint8_t* headBuf = Q_NULLPTR;
     int headSize = 0;
+
     //发送的全部数据
-//    SeerData* seerData = Q_NULLPTR;
     SeerData* seerData = Q_NULLPTR;
+
     //开始计时
     _time.start();
 
-    //根据数据区数据进行数据转换
-//    if (sendData.isEmpty())
-//    {
-//        headSize = sizeof(SeerHeader);
-//        headBuf = new uint8_t[headSize];
-//        seerData = (SeerData*)headBuf;
-//        size = seerData->setData(sendCommand, Q_NULLPTR, 0, number);
-//    }
-//    else
-//    {
-//        std::string json_str = sendData.toStdString();
-//        headSize = sizeof(SeerHeader) + json_str.length();
-//        headBuf = new uint8_t[headSize];
-//        size = seerData->setData(sendCommand, (uint8_t*)json_str.data(), json_str.length(), number);
-//    }
 
     if (sendData.isEmpty())
     {
@@ -124,7 +109,6 @@ bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
     }
     //---------------------------------------
     //发送的所有数据
-//    QByteArray tempA = QByteArray::fromRawData((char*)seerData,size);
     QByteArray tempA = QByteArray::fromRawData((char*)seerData, size);
     qDebug()<<"send:"<<QString(tempA)<<"  Hex:"<<tempA.toHex()<<"seerData:size:"<<size;
     QString dataHex = "";
@@ -161,10 +145,6 @@ bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
     //-------------
     qDebug()<<"TCP:_timeOut:"<<_timeOut;
     //如果_timeOut = 0表示不监听超时
-//    if(0 == _timeOut)
-//    {
-//        return true;
-//    }
     if (0 == _timeOut)
     {
         return true;
@@ -186,7 +166,7 @@ void SCStatusTcp::receiveTcpReadyRead()
 {
     //读取所有数据
     //返回的数据大小不定,需要使用_lastMessage成员变量存放多次触发槽读取的数据。
-//    QByteArray message = _tcpSocket->readAll();
+
     QByteArray message = _tcpSocket->readAll();
     message = _lastMessage + message;
     int size = message.size();
@@ -199,7 +179,6 @@ void SCStatusTcp::receiveTcpReadyRead()
                 memcpy(header, message.data(), 16);
 
                 uint32_t data_size;//返回所有数据总长值
-//                uint16_t revCommand;//返回报文数据类型
                 uint16_t revCommand;
                 uint16_t number;//返回序号
                 qToBigEndian(header->m_length,(uint8_t*)&(data_size));
@@ -214,7 +193,6 @@ void SCStatusTcp::receiveTcpReadyRead()
 
                     break;
                 }else{//返回数据长度值 大于等于 已读取数据，开始解析
-//                    QByteArray tempMessage;
                     QByteArray tempMessage;
                     if(_lastMessage.isEmpty()){
                         tempMessage = message;
@@ -223,7 +201,6 @@ void SCStatusTcp::receiveTcpReadyRead()
                     }
                     QByteArray headB = message.left(16);
                     //截取报头16位后面的数据区数据
-//                    QByteArray json_data = message.mid(16,data_size);
                     QByteArray json_data = message.mid(16, data_size);
                     qDebug()<<"rev:"<<QString(json_data)<<"  Hex:"<<json_data.toHex();
                     //--------------------------------------
