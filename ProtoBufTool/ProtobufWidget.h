@@ -1,4 +1,4 @@
-#ifndef PROTOBUFWIDGET_H
+﻿#ifndef PROTOBUFWIDGET_H
 #define PROTOBUFWIDGET_H
 
 #include <QWidget>
@@ -31,7 +31,7 @@ private slots:
 
 private:
     Ui::ProtobufWidget *ui;
-    ProtobufThread *pProtobufThread;
+    ProtobufThread *_pProtobufThread = Q_NULLPTR;
 };
 
 #endif // PROTOBUFWIDGET_H

@@ -1,4 +1,4 @@
-#include "ProtobufThread.h"
+﻿#include "ProtobufThread.h"
 #include <ostream>
 using namespace std;
 ProtobufThread::ProtobufThread(QObject *parent) : BaseThread(parent)
@@ -142,7 +142,7 @@ void ProtobufThread::run()
             if(file.open(QIODevice::ReadOnly)){
                 jsonStr = QString( file.readAll());
             }else{
-                setLastError(QString("打开【%1】文件失败").arg(_binaryMessageName));
+                setLastError(QString(QStringLiteral("打开【%1】文件失败")).arg(_binaryMessageName));
             }
         }else {
             jsonStr = jsonData();
