@@ -33,8 +33,7 @@ SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
 
 SCTcpToolWidget::~SCTcpToolWidget()
 {
-    //pSCStatusTcp类不用手动释放，qt会自动释放SCTcpToolWidget的子类.
-    delete pProtobufWidget;
+    //类不用手动释放，qt会自动释放SCTcpToolWidget的子类.
     delete ui;
 }
 

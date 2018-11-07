@@ -1,4 +1,4 @@
-#ifndef SCStatusTcp_H
+﻿#ifndef SCStatusTcp_H
 #define SCStatusTcp_H
 
 
@@ -40,7 +40,7 @@ signals:
     void sigChangedText(bool ,int ,QByteArray ,QByteArray ,int ,int );
 private:
 
-    QTcpSocket *_tcpSocket;
+    QTcpSocket *_tcpSocket = Q_NULLPTR;
     QString _lastError;
     QString _ip; //ip
     quint16 _port; //端口号
@@ -49,9 +49,9 @@ private:
     QByteArray _lastMessage;//存放所有读取的数据
     QTime _time;//用来监测时间
 
-    int _oldSendCommand;
-    int _oldNumber;
-    int _timeOut;
+    int _oldSendCommand = -1;
+    int _oldNumber = -1;
+    int _timeOut = -1;
 
 
 };

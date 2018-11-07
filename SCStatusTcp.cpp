@@ -2,17 +2,15 @@
 #include "SCHeadData.h"
 
 
-SCStatusTcp::SCStatusTcp(QObject *parent) : QObject(parent),
-    _tcpSocket(Q_NULLPTR)
+SCStatusTcp::SCStatusTcp(QObject *parent) : QObject(parent)
 {
-
 }
 
 SCStatusTcp::~SCStatusTcp()
 {
     releaseTcpSocket();
     if(_tcpSocket){
-        delete _tcpSocket;
+        _tcpSocket->deleteLater();
     }
 }
 
@@ -23,9 +21,8 @@ void SCStatusTcp::releaseTcpSocket()
 {
     if(_tcpSocket){
 
-        if(_tcpSocket->isOpen()){
-            _tcpSocket->close();
-        }
+        //Aborts the current connection and resets the socket.
+        //Unlike disconnectFromHost(), this function immediately closes the socket, discarding any pending data in the write buffer.
         _tcpSocket->abort();
     }
 }
@@ -48,9 +45,8 @@ int SCStatusTcp::connectHost(const QString&ip,quint16 port)
                 SLOT(receiveTcpError(QAbstractSocket::SocketError)));
     }
     if(_tcpSocket->isOpen()
-            &&(_tcpSocket->state()==QAbstractSocket::ConnectedState
-               ||_tcpSocket->state()==QAbstractSocket::ConnectingState)){
-        _tcpSocket->close();
+            && (_tcpSocket->state()==QAbstractSocket::ConnectedState
+                || _tcpSocket->state()==QAbstractSocket::ConnectingState)){
         _tcpSocket->abort();
         qDebug()<<"----close _tcpSocket----\n";
         ret = 1;
@@ -92,15 +88,15 @@ bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
     _time.start();
 
 
-    if (sendData.isEmpty())
-    {
+    if (sendData.isEmpty()){
+
         headSize = sizeof(SeerHeader);
         headBuf = new uint8_t[headSize];
         seerData = (SeerData*)headBuf;
         size = seerData->setData(sendCommand, Q_NULLPTR, 0, number);
-    }
-    else
-    {
+
+    }else{
+
         std::string json_str = sendData.toStdString();
         headSize = sizeof(SeerHeader) + json_str.length();
         headBuf = new uint8_t[headSize];
@@ -119,12 +115,12 @@ bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
     }
     //打印信息
     QString info = QString(QStringLiteral("\n%1--------- 请求 ---------\n"
-                           "报文类型:%2 (0x%3) \n"
-                           "端口: %4\n"
-                           "序号: %5 (0x%6)\n"
-                           "头部十六进制: %7 \n"
-                           "数据区[size:%8 (0x%9)]: %10 \n"
-                           "数据区十六进制: %11 "))
+                                          "报文类型:%2 (0x%3) \n"
+                                          "端口: %4\n"
+                                          "序号: %5 (0x%6)\n"
+                                          "头部十六进制: %7 \n"
+                                          "数据区[size:%8 (0x%9)]: %10 \n"
+                                          "数据区十六进制: %11 "))
             .arg(getCurrentDateTime())
             .arg(sendCommand)
             .arg(QString::number(sendCommand,16))
@@ -212,11 +208,11 @@ void SCStatusTcp::receiveTcpReadyRead()
                     }
                     //输出打印信息
                     QString info = QString(QStringLiteral("%1--------- 响应 ---------\n"
-                                           "报文类型:%2 (%3) \n"
-                                           "序号: %4 (0x%5)\n"
-                                           "头部十六进制: %6\n"
-                                           "数据区[size:%7 (0x%8)]: %9 \n"
-                                           "数据区十六进制: %10 \n"))
+                                                          "报文类型:%2 (%3) \n"
+                                                          "序号: %4 (0x%5)\n"
+                                                          "头部十六进制: %6\n"
+                                                          "数据区[size:%7 (0x%8)]: %9 \n"
+                                                          "数据区十六进制: %10 \n"))
                             .arg(getCurrentDateTime())
                             .arg(revCommand)
                             .arg(QString::number(revCommand,16))
