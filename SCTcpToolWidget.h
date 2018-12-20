@@ -5,10 +5,6 @@
 #include "SCStatusTcp.h"
 #include "Core/SqliteClass.h"
 
-#define TEST 1 // 【此部分代码为测试代码】  0：非测试， 1：测试中
-
-#if TEST
-
 #include <QListView>
 #include <QListWidget>
 #include <QLabel>
@@ -16,7 +12,6 @@
 #include <QMessageBox>
 #include <QTime>
 
-#endif
 
 namespace Ui {
 class SCTcpToolWidget;
@@ -150,7 +145,7 @@ private:
 
     bool _reqFinished = false; // false：还未发送请求或正在发送请求       true：发送请求完成并成功接收响应
 
-    QTime _dateTime = QTime(0, 0, 0, 0);
+    QTime _dateTime = QTime(0, 0, 0, 0); // 定时发送时，创建连接的超时时间
 
     //QMap<reqValue, reqDescription>
     QMap<int, QString> _reqDescriptionMap;
