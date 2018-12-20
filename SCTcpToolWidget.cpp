@@ -55,7 +55,6 @@ void SCTcpToolWidget::initDb()
     connect(ui->comboBox_port, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotPortChanged(QString)));
     connect(ui->comboBox_sendCommand, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSendCommandChanged(int)));
 
-#if TEST
     //---------------------------------------
     // 把端口添加到界面上
     QList<int> ilistPorts;
@@ -123,8 +122,6 @@ void SCTcpToolWidget::initDb()
 
     // 显示被选中的端口对应的指令
     slotPortChanged(ui->comboBox_port->currentText());
-
-#endif
 
 }
 
