@@ -4,11 +4,21 @@
 #include <QFileDialog>
 #include <QHostInfo>
 
+#if TEST
+
+
+#endif
+
+
 SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SCTcpToolWidget)
 {
     ui->setupUi(this);
+
+#if TEST
+    initTestWidget();
+#endif
 
     //db类
     initDb();
@@ -33,6 +43,7 @@ SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     //-------------------------
     _pProtobufWidget = new ProtobufWidget(ui->tabWidget);
     ui->tabWidget->addTab(_pProtobufWidget,QStringLiteral("proto二进制/Json转换"));
+
 }
 
 SCTcpToolWidget::~SCTcpToolWidget()
@@ -62,7 +73,129 @@ void SCTcpToolWidget::initDb()
         ui->comboBox_allReq->addItem(desc,key);
     }
     connect(ui->comboBox_allReq,SIGNAL(currentIndexChanged(int)),this,SLOT(slotAllReqCurrentChanged(int)));
+
+#if TEST
+    // 【把API类型】添加到界面上
+    QList<int> ilistPorts;
+    ilistPorts.clear();
+
+    QMap<int, int> portMap = _pSqliteClass->getProtocol()->ReqValuePortMap;
+
+    for (int j = 0; j < portMap.keys().count(); j ++) {
+        auto key = portMap.keys().at(j);
+
+        // 过滤掉端口号为10000的记录
+        if(_pSqliteClass->getProtocol()->getPort(key) == 10000) continue;
+
+        int iPortTmp = portMap.value(key);
+
+        // 将第一个端口号添加到空列表中
+        if (j == 0) {
+            ilistPorts.append(iPortTmp);
+        }
+        else { // 对比从第二个开始的端口号，并将不重复的端口号添加到
+            bool blRepeated = false;
+            foreach (int iPort, ilistPorts) {
+               if (iPortTmp == iPort) {
+                    blRepeated = true;
+                    break;
+               }
+            }
+
+            // 把没有重复的端口号添加到列表中
+            if (!blRepeated) {
+                ilistPorts.append(iPortTmp);
+            }
+        }
+    }
+
+    foreach (int iPort, ilistPorts) {
+//        /*
+        switch (iPort) {
+        case 19204:
+            _testAPIType->addItem(QStringLiteral("19204:机器人状态API"));
+            break;
+        case 19205:
+            _testAPIType->addItem(QStringLiteral("19205:机器人控制API"));
+            break;
+        case 19206:
+            _testAPIType->addItem(QStringLiteral("19206:机器人导航API"));
+            break;
+        case 19207:
+            _testAPIType->addItem(QStringLiteral("19207:机器人配置API"));
+            break;
+        case 19208: //only for RoboD
+//            _testAPIType->addItem(QStringLiteral("19208：其他API"));
+            break;
+        case 19210:
+            _testAPIType->addItem(QStringLiteral("19210:其他API"));
+            break;
+        default:
+            break;
+        }
+//        */
+
+//        _testAPIType->addItem(QString::number(iPort));
+
+    }
+
+    _testAPIType->setCurrentRow(0);
+    qDebug() << ilistPorts;
+
+    // 将被选中的【API类型】的【API名称】显示在界面上
+    // 获取数据库中对应的【API名称】
+    _reqDescriptionMap = _pSqliteClass->getProtocol()->ReqValueReqDescriptionMap;
+    slotUpdateAPINamesByAPIType(_testAPIType->currentItem()->text());
+
+#endif
+
 }
+
+#if TEST
+// 初始化测试界面
+void SCTcpToolWidget::initTestWidget()
+{
+    _testWidget = new QWidget();
+    QSize size = ui->tabWidget->widget(0)->size();
+    _testWidget->resize(size);
+
+    _APITypeLabel = new QLabel(_testWidget);
+    _APITypeLabel->setGeometry(10,10, 200, 30);
+    _APITypeLabel->setText(QStringLiteral("请选择API类型："));
+
+    _APINameLabel = new QLabel(_testWidget);
+    _APINameLabel->setGeometry(220,10, 300, 30);
+    _APINameLabel->setText(QStringLiteral("请选择API名称："));
+
+    _testAPIType = new QListWidget(_testWidget);
+    _testAPIType->setGeometry(10, 40, 200, 110);
+
+    _testAPIName = new QListWidget(_testWidget);
+    _testAPIName->setGeometry(220, 40, 300, 110);
+    _testAPIName->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    ui->tabWidget->addTab(_testWidget, QStringLiteral("测试界面"));
+
+    connect(_testAPIType, SIGNAL(currentTextChanged(QString)), this, SLOT(slotUpdateAPINamesByAPIType(QString)));
+}
+
+void SCTcpToolWidget::slotUpdateAPINamesByAPIType(QString APIType)
+{
+    int icurrentAPIType  = APIType.split(":").first().toInt();
+    qDebug() << "Current API Type is: " << APIType  << icurrentAPIType;
+
+    _testAPIName->clear();
+
+    for (int k = 0; k < _reqDescriptionMap.keys().count(); k ++) {
+        auto keyk = _reqDescriptionMap.keys().at(k);
+        if (_pSqliteClass->getProtocol()->getPort(keyk) == icurrentAPIType) { // 将对应的API名称显示在界面上
+            _testAPIName->addItem(new QListWidgetItem(_reqDescriptionMap.value(keyk)));
+        }
+    }
+}
+
+
+#endif
 
 void SCTcpToolWidget::slotAllReqCurrentChanged(int index)
 {
