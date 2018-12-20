@@ -1,13 +1,9 @@
 ﻿#include "SCTcpToolWidget.h"
 #include "ui_SCTcpToolWidget.h"
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QHostInfo>
-
-#if TEST
-
-
-#endif
 
 
 SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
@@ -15,10 +11,6 @@ SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     ui(new Ui::SCTcpToolWidget)
 {
     ui->setupUi(this);
-
-#if TEST
-    initTestWidget();
-#endif
 
     //db类
     initDb();
@@ -40,10 +32,6 @@ SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     ui->lineEdit_sendCommand->setValidator(intV);
 
     on_checkBox_timeOut_clicked(true);
-    //-------------------------
-    _pProtobufWidget = new ProtobufWidget(ui->tabWidget);
-    ui->tabWidget->addTab(_pProtobufWidget,QStringLiteral("proto二进制/Json转换"));
-
 }
 
 SCTcpToolWidget::~SCTcpToolWidget()
@@ -63,37 +51,25 @@ void SCTcpToolWidget::initDb()
         SCWarning<<_pSqliteClass->errorString();
         return;
     }
-    QMap<int ,QString> reqDescriptionMap = _pSqliteClass->getProtocol()->ReqValueReqDescriptionMap;
-    for(int i=0; i<reqDescriptionMap.keys().size(); ++i){
-        auto key = reqDescriptionMap.keys().at(i);
-        if(_pSqliteClass->getProtocol()->getPort(key) == 10000) continue;
-        QString desc = QString("%1 : %2")
-                .arg(reqDescriptionMap.value(key))
-                .arg(_pSqliteClass->getProtocol()->getReq(key));
-        ui->comboBox_allReq->addItem(desc,key);
-    }
-    connect(ui->comboBox_allReq,SIGNAL(currentIndexChanged(int)),this,SLOT(slotAllReqCurrentChanged(int)));
 
-#if TEST
-    // 【把API类型】添加到界面上
+    connect(ui->comboBox_port, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotPortChanged(QString)));
+    connect(ui->comboBox_sendCommand, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSendCommandChanged(int)));
+
+    //---------------------------------------
+    // 把端口添加到界面上
     QList<int> ilistPorts;
-    ilistPorts.clear();
-
     QMap<int, int> portMap = _pSqliteClass->getProtocol()->ReqValuePortMap;
 
     for (int j = 0; j < portMap.keys().count(); j ++) {
         auto key = portMap.keys().at(j);
-
-        // 过滤掉端口号为10000的记录
-        if(_pSqliteClass->getProtocol()->getPort(key) == 10000) continue;
+        // 过滤掉端口号为10000和19208的相关指令
+        if(_pSqliteClass->getProtocol()->getPort(key) == 10000 &&
+                _pSqliteClass->getProtocol()->getPort(key == 19208)) continue;
 
         int iPortTmp = portMap.value(key);
-
-        // 将第一个端口号添加到空列表中
-        if (j == 0) {
+        if (j == 0) {// 将第一个端口号添加到空列表中
             ilistPorts.append(iPortTmp);
-        }
-        else { // 对比从第二个开始的端口号，并将不重复的端口号添加到
+        } else { // 对比从第二个开始的端口号，并将不重复的端口号添加到
             bool blRepeated = false;
             foreach (int iPort, ilistPorts) {
                if (iPortTmp == iPort) {
@@ -104,190 +80,72 @@ void SCTcpToolWidget::initDb()
 
             // 把没有重复的端口号添加到列表中
             if (!blRepeated) {
+                // 忽略端口10000和端口19208
+                if (iPortTmp == 10000 || iPortTmp == 19208) continue;
                 ilistPorts.append(iPortTmp);
             }
         }
     }
 
     foreach (int iPort, ilistPorts) {
-//        /*
+        QString strPortDescription;
         switch (iPort) {
         case 19204:
-            _testAPIType->addItem(QStringLiteral("19204:机器人状态API"));
+            strPortDescription = QString(QStringLiteral("机器人状态API"));
             break;
         case 19205:
-            _testAPIType->addItem(QStringLiteral("19205:机器人控制API"));
+            strPortDescription = QString(QStringLiteral("机器人控制API"));
             break;
         case 19206:
-            _testAPIType->addItem(QStringLiteral("19206:机器人导航API"));
+            strPortDescription = QString(QStringLiteral("机器人导航API"));
             break;
         case 19207:
-            _testAPIType->addItem(QStringLiteral("19207:机器人配置API"));
-            break;
-        case 19208: //only for RoboD
-//            _testAPIType->addItem(QStringLiteral("19208：其他API"));
+            strPortDescription = QString(QStringLiteral("机器人配置API"));
             break;
         case 19210:
-            _testAPIType->addItem(QStringLiteral("19210:其他API"));
+            strPortDescription = QString(QStringLiteral("其他API"));
             break;
         default:
             break;
         }
-//        */
 
-//        _testAPIType->addItem(QString::number(iPort));
+        // 记录当前的端口号及其对应的中文描述
+        _reqPortMap.insert(iPort, strPortDescription);
+
+        // 将端口号的中文描述显示在界面上
+        ui->comboBox_port->addItem(strPortDescription);
 
     }
 
-    _testAPIType->setCurrentRow(0);
-    qDebug() << ilistPorts;
-
-    // 将被选中的【API类型】的【API名称】显示在界面上
-    // 获取数据库中对应的【API名称】
+    // 获取数据库中所有指令的中文描述
     _reqDescriptionMap = _pSqliteClass->getProtocol()->ReqValueReqDescriptionMap;
-    slotUpdateAPINamesByAPIType(_testAPIType->currentItem()->text());
 
-#endif
+    // 显示被选中的端口对应的指令
+    slotPortChanged(ui->comboBox_port->currentText());
 
 }
 
-#if TEST
-// 初始化测试界面
-void SCTcpToolWidget::initTestWidget()
+void SCTcpToolWidget::myConnect()
 {
-    _testWidget = new QWidget();
-    QSize size = ui->tabWidget->widget(0)->size();
-    _testWidget->resize(size);
-
-    _APITypeLabel = new QLabel(_testWidget);
-    _APITypeLabel->setGeometry(10,10, 200, 30);
-    _APITypeLabel->setText(QStringLiteral("请选择API类型："));
-
-    _APINameLabel = new QLabel(_testWidget);
-    _APINameLabel->setGeometry(220,10, 300, 30);
-    _APINameLabel->setText(QStringLiteral("请选择API名称："));
-
-    _testAPIType = new QListWidget(_testWidget);
-    _testAPIType->setGeometry(10, 40, 200, 110);
-
-    _testAPIName = new QListWidget(_testWidget);
-    _testAPIName->setGeometry(220, 40, 300, 110);
-    _testAPIName->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    ui->tabWidget->addTab(_testWidget, QStringLiteral("测试界面"));
-
-    connect(_testAPIType, SIGNAL(currentTextChanged(QString)), this, SLOT(slotUpdateAPINamesByAPIType(QString)));
-}
-
-void SCTcpToolWidget::slotUpdateAPINamesByAPIType(QString APIType)
-{
-    int icurrentAPIType  = APIType.split(":").first().toInt();
-    qDebug() << "Current API Type is: " << APIType  << icurrentAPIType;
-
-    _testAPIName->clear();
-
-    for (int k = 0; k < _reqDescriptionMap.keys().count(); k ++) {
-        auto keyk = _reqDescriptionMap.keys().at(k);
-        if (_pSqliteClass->getProtocol()->getPort(keyk) == icurrentAPIType) { // 将对应的API名称显示在界面上
-            _testAPIName->addItem(new QListWidgetItem(_reqDescriptionMap.value(keyk)));
-        }
-    }
-}
-
-
-#endif
-
-void SCTcpToolWidget::slotAllReqCurrentChanged(int index)
-{
-    ui->lineEdit_sendCommand->setText(QString("%1").arg(ui->comboBox_allReq->itemData(index).toInt()));
-}
-
-/** socket连接/断开
- * @brief SCTcpToolWidget::on_pushButton_connect_clicked
- * @param checked
- */
-void SCTcpToolWidget::on_pushButton_connect_clicked(bool checked)
-{
-    switch (_pSCStatusTcp->connectHost(ui->lineEdit_ip->text(),ui->comboBox_port->currentText().toInt())) {
+    qDebug() << "try connecting";
+    QString strInfo;
+    switch (_pSCStatusTcp->connectHost(ui->lineEdit_ip->text(),ui->lineEdit_port->text().toInt())) {
     case 1:
-        ui->pushButton_connect->setText(QStringLiteral("开始连接"));
+        strInfo = QString(QStringLiteral("连接失败"));
+        qDebug() << strInfo;
+        ui->textEdit_info->append(strInfo);
         break;
-
     default:
         break;
     }
 }
 
-//TODO---------------tcp----------------------
-/** tcp槽实时监测tcp状态
- * @brief SCTcpToolWidget::stateChanged
- * @param state
- */
-void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
-{
-    QString info;
-    switch (state) {
-    case QAbstractSocket::UnconnectedState:
-        info = "QAbstractSocket::UnconnectedState";
-        ui->comboBox_port->setEnabled(true);
-        ui->pushButton_connect->setText(QStringLiteral("开始连接"));
-        break;
-    case QAbstractSocket::HostLookupState:
-        info = "QAbstractSocket::HostLookupState";
-        break;
-
-    case QAbstractSocket::ConnectingState:
-        info = "QAbstractSocket::ConnectingState";
-        ui->pushButton_connect->setText(QStringLiteral("正在连接..."));
-        ui->comboBox_port->setEnabled(false);
-        break;
-    case QAbstractSocket::ConnectedState:
-    {
-        info = "QAbstractSocket::ConnectedState \n";
-        ui->pushButton_connect->setText(QStringLiteral("断开连接"));
-    }
-        break;
-    case QAbstractSocket::BoundState:
-        info = "QAbstractSocket::BoundState";
-        break;
-    case QAbstractSocket::ListeningState:
-        info = "QAbstractSocket::ListeningState";
-        break;
-    case QAbstractSocket::ClosingState:
-        info = "QAbstractSocket::ClosingState";
-        ui->comboBox_port->setEnabled(true);
-        ui->pushButton_connect->setText(QStringLiteral("开始连接"));
-        break;
-    }
-    ui->textEdit_info->append(QString("%1 IP:%2:%3 %4")
-                              .arg(_pSCStatusTcp->getCurrentDateTime())
-                              .arg(ui->lineEdit_ip->text())
-                              .arg(ui->comboBox_port->currentText())
-                              .arg(info));
-}
-/** tcp槽 返回tcp错误
- * @brief SCTcpToolWidget::receiveTcpError
- * @param error
- */
-void SCTcpToolWidget::receiveTcpError(QAbstractSocket::SocketError error)
-{
-    ui->textEdit_info->append(QString("%1  connect error[%2]: IP:%3:%4")
-                              .arg(_pSCStatusTcp->getCurrentDateTime())
-                              .arg(error)
-                              .arg(ui->lineEdit_ip->text())
-                              .arg(ui->comboBox_port->currentText()));
-    ui->comboBox_port->setEnabled(true);
-    ui->pushButton_connect->setText(QStringLiteral("开始连接"));
-
-}
-
-/** 发送
- * @brief SCTcpToolWidget::on_pushButton_send_clicked
- */
-void SCTcpToolWidget::on_pushButton_send_clicked()
+void SCTcpToolWidget::sendCommand()
 {
     if (_pSCStatusTcp->tcpSocket() && _pSCStatusTcp->tcpSocket()->state()==QAbstractSocket::ConnectedState)
     {
+        _reqFinished = false; // 重置标志
+
         //报头数据类型
         uint16_t sendCommand = ui->lineEdit_sendCommand->text().toInt();
 
@@ -318,8 +176,7 @@ void SCTcpToolWidget::on_pushButton_send_clicked()
         ui->textEdit_revData->clear();
 
         //发送数据
-        if(!_pSCStatusTcp->writeTcpData(sendCommand,sendData,number))
-        {
+        if(!_pSCStatusTcp->writeTcpData(sendCommand,sendData,number)) {
             slotPrintInfo(QString(QStringLiteral("<font color=\"red\">"
                                                  "%1--------- 发送错误----------\n"
                                                  "发送的报文类型:%2  \n"
@@ -328,22 +185,133 @@ void SCTcpToolWidget::on_pushButton_send_clicked()
                           .arg(_pSCStatusTcp->getCurrentDateTime())
                           .arg(sendCommand)
                           .arg(_pSCStatusTcp->lastError()));
+            ui->textEdit_info->append("<font color = \"black\"> &nbsp; </font>");
         }
     }
     else
     {
+        qDebug() << "not connected, send failed";
         ui->textEdit_info->append(QString("UnconnectedState"));
     }
 }
-/** 发送后，响应
- * @brief SCTcpToolWidget::slotChangedText
- * @param isOk 是否正常返回
- * @param revCommand 返回的数据类型
- * @param revData 返回的数据
- * @param revHex 返回hex
- * @param number 序号
- * @param msTime 发送->返回时间 单位：ms
- */
+
+
+void SCTcpToolWidget::slotPortChanged(QString portDescription)
+{
+    // 当前端口的端口号
+    int iPort = _reqPortMap.key(portDescription);
+
+    // 获取当前的端口号并显示在界面上
+    ui->lineEdit_port->setText(QString::number(iPort));
+
+    // 清空之前显示的API
+    ui->comboBox_sendCommand->clear();
+    // 显示与此端口相关的所有指令
+    for (int k = 0; k < _reqDescriptionMap.keys().count(); k ++) {
+        auto key = _reqDescriptionMap.keys().at(k);
+        if (_pSqliteClass->getProtocol()->getPort(key) == iPort) {
+            ui->comboBox_sendCommand->addItem(_reqDescriptionMap.value(key));
+        }
+    }
+}
+
+void SCTcpToolWidget::slotSendCommandChanged(int index)
+{
+    qDebug() << "command ......................." << index;
+    // 过滤索引值为负数时导致读取错误信息的情况
+    if (index < 0)
+        return;
+
+    // 当前指令的编号
+    int iAPIID = _reqDescriptionMap.key(ui->comboBox_sendCommand->itemText(index));
+    qDebug() << iAPIID;
+
+    if (iAPIID < 10000)
+    {
+        ui->lineEdit_sendCommand->setText(QString::number(iAPIID));
+    }
+
+}
+
+void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
+{
+    QString info;
+    switch (state) {
+    case QAbstractSocket::UnconnectedState:
+        info = "QAbstractSocket::UnconnectedState";
+        ui->pushButton_connectAndSend->setEnabled(true);
+        ui->checkBox_queryTime->setEnabled(true);
+//        qDebug() << QStringLiteral("开始连接");
+        ui->textEdit_info->append(QString(QStringLiteral("连接已断开！！！")));
+
+        break;
+    case QAbstractSocket::HostLookupState:
+        info = "QAbstractSocket::HostLookupState";
+        ui->pushButton_connectAndSend->setEnabled(false);
+        break;
+
+    case QAbstractSocket::ConnectingState:
+        info = "QAbstractSocket::ConnectingState";
+//        qDebug() << QStringLiteral("正在连接...");
+        ui->pushButton_connectAndSend->setEnabled(false);
+        break;
+    case QAbstractSocket::ConnectedState:
+        info = "QAbstractSocket::ConnectedState \n";
+//        qDebug() << QStringLiteral("断开连接");
+        ui->pushButton_connectAndSend->setEnabled(false);
+        break;
+    case QAbstractSocket::BoundState:
+        info = "QAbstractSocket::BoundState";
+        ui->pushButton_connectAndSend->setEnabled(false);
+        break;
+    case QAbstractSocket::ListeningState:
+        info = "QAbstractSocket::ListeningState";
+        ui->pushButton_connectAndSend->setEnabled(false);
+        break;
+    case QAbstractSocket::ClosingState:
+        info = "QAbstractSocket::ClosingState";
+        ui->pushButton_connectAndSend->setEnabled(false);
+//        qDebug() << QStringLiteral("开始连接");
+        break;
+    }
+
+    ui->textEdit_info->append(QString("%1 IP:%2:%3 %4")
+                              .arg(_pSCStatusTcp->getCurrentDateTime())
+                              .arg(ui->lineEdit_ip->text())
+                              .arg(ui->lineEdit_port->text())
+                              .arg(info));
+
+    // 连接成功之后，发送请求
+    if (_pSCStatusTcp->tcpSocket()->state() == QAbstractSocket::ConnectedState) {
+        sendCommand();
+    }
+
+    if (_reqFinished && !ui->checkBox_queryTime->isChecked()) { // 断开当前的连接
+        _reqFinished = false;
+        ui->textEdit_info->append(QString(QStringLiteral("指令发送完成，正在断开连接...")));
+        _pSCStatusTcp->releaseTcpSocket();
+        ui->checkBox_queryTime->setEnabled(true);
+
+    } else {
+        // do nothing
+    }
+}
+
+void SCTcpToolWidget::receiveTcpError(QAbstractSocket::SocketError error)
+{
+    ui->textEdit_info->append(QString("<font color = \"red\">"
+                                      "%1  connect error[%2]: IP:%3:%4"
+                                      "</font>")
+                              .arg(_pSCStatusTcp->getCurrentDateTime())
+                              .arg(error)
+                              .arg(ui->lineEdit_ip->text())
+                              .arg(ui->lineEdit_port->text())); // 用红色字体显示错误信息
+    ui->textEdit_info->append(QString("<font color = \"black\"> &nbsp; </font>")); // 用黑色字体显示正确信息
+    ui->pushButton_connectAndSend->setEnabled(true);
+    qDebug() << QStringLiteral("开始连接");
+
+}
+
 void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
                                       QByteArray revData,QByteArray revHex,
                                       int number,int msTime)
@@ -394,28 +362,25 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
         ui->textEdit_revData->setText(QString(revData));
         ui->label_revText->setText(QString(QStringLiteral("响应的错误: %1 \t\n"))
                                    .arg(_pSCStatusTcp->lastError()));
+
+        ui->textEdit_info->append("<font color = \"black\"> &nbsp; </font>");
     }
 
+    // 发送指令成功并接收到返回值后，可以断开连接
+    _reqFinished = true;
 
 }
-/** 打印信息
- * @brief SCTcpToolWidget::slotPrintInfo
- * @param info
- */
+
 void SCTcpToolWidget::slotPrintInfo(QString info)
 {
     ui->textEdit_info->append(info);
 }
-/** 清空textEdit_info数据
- * @brief SCTcpToolWidget::on_pushButton_clearInfo_clicked
- */
+
 void SCTcpToolWidget::on_pushButton_clearInfo_clicked()
 {
     ui->textEdit_info->clear();
 }
-/** 自动滚动
- * @brief SCTcpToolWidget::slotAutomaticallyScroll
- */
+
 void SCTcpToolWidget::slotAutomaticallyScroll()
 {
     if(ui->checkBox_automatically->isChecked())
@@ -432,7 +397,6 @@ void SCTcpToolWidget::slotAutomaticallyScroll()
 
 void SCTcpToolWidget::on_pushButton_zipFile_clicked()
 {
-
     QString filePath = QFileDialog::getOpenFileName(this, QString("rewrite"), ".", QString("zip File(*.zip"));
 
     if (filePath.isEmpty()) {
@@ -453,17 +417,80 @@ void SCTcpToolWidget::on_checkBox_timeOut_clicked(bool checked)
 
 void SCTcpToolWidget::timerEvent(QTimerEvent *event)
 {
+#if !TEST
     if(event->timerId() == _queryTimeID){
-        if(ui->pushButton_send->isEnabled()){
-            on_pushButton_send_clicked();
+        if(ui->pushButton_connectAndSend->isEnabled()){
+            sendCommand();
         }
     }
+#else
+    // 先建立连接，然后再开始定时发送指令
+    if (_pSCStatusTcp->tcpSocket() && _pSCStatusTcp->tcpSocket()->state()==QAbstractSocket::ConnectedState) {
+        qDebug() << "connected";
+        if(event->timerId() == _queryTimeID){
+            sendCommand();
+        }
+    } else {
+        if (_dateTime == QTime(0, 0, 0, 0)) {
+            _dateTime = QTime::currentTime().addMSecs(ui->spinBox_timeOut->value());
+            qDebug() << _dateTime;
+        }
+
+        if (_dateTime <= QTime::currentTime()) {
+            myKillTimer(_queryTimeID);
+            resetDateTime();
+            ui->checkBox_queryTime->setChecked(false);
+            qDebug() << "unconnected";
+        }
+    }
+
+#endif
 }
+
+void SCTcpToolWidget::myKillTimer(int id)
+{
+    killTimer(id);
+    id = -1;
+}
+
 void SCTcpToolWidget::on_checkBox_queryTime_clicked(bool checked)
 {
+    qDebug() << "query time";
     if(checked){
+        myConnect(); // 先建立连接
         _queryTimeID = this->startTimer(ui->spinBox_queryTime->value());
     }else{
-        killTimer(_queryTimeID);
+        if (_queryTimeID > 0) {
+            myKillTimer(_queryTimeID);
+            resetDateTime();
+        }
+        if (_reqFinished) { // 在发送完指令，并接受到响应之后再断开连接
+            _reqFinished = false; // 提前重置标志，防止界面上输出多有的信息
+           _pSCStatusTcp->releaseTcpSocket();
+        }
     }
+
+}
+
+void SCTcpToolWidget::on_pushButton_connectAndSend_clicked(bool checked)
+{
+    Q_UNUSED(checked);
+    if (ui->lineEdit_ip->text().isEmpty() ||
+            ui->lineEdit_sendCommand->text().isEmpty() ||
+            ui->lineEdit_port->text().isEmpty()) {
+        QMessageBox::warning(
+                    this,
+                    "warnning",
+                    QStringLiteral("请输入完整的信息！！！"),
+                    QMessageBox::Ok);
+    } else {
+        // 建立连接
+        ui->checkBox_queryTime->setEnabled(false);
+        myConnect();
+    }
+}
+
+void SCTcpToolWidget::resetDateTime()
+{
+    _dateTime = QTime(0, 0, 0, 0);
 }

@@ -12,25 +12,19 @@ CONFIG += c++11
 TARGET = SeerTCPTest
 TEMPLATE = app
 include(libconfig.prf)
-include(Protobuf/Protobuf.pri);
 
 SOURCES += main.cpp\
         SCTcpToolWidget.cpp \
     SCStatusTcp.cpp \
-    ProtoBufTool/ProtobufThread.cpp \
-    ProtoBufTool/ProtobufWidget.cpp \
     Core/BaseThread.cpp \
     Core/SqliteClass.cpp
 
 HEADERS  += SCTcpToolWidget.h \
     SCStatusTcp.h \
     SCHeadData.h \
-    ProtoBufTool/ProtobufThread.h \
-    ProtoBufTool/ProtobufWidget.h \
     Core/BaseThread.h \
     Core/SqliteClass.h
 
-FORMS    += SCTcpToolWidget.ui \
-    ProtoBufTool/ProtobufWidget.ui
+FORMS   += SCTcpToolWidget.ui
 
 win32:RC_FILE = ICO.rc
