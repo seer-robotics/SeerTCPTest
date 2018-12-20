@@ -14,9 +14,6 @@ SCStatusTcp::~SCStatusTcp()
     }
 }
 
-/** 释放tcpSocket
- * @brief SCStatusTcp::releaseTcpSocket
- */
 void SCStatusTcp::releaseTcpSocket()
 {
     if(_tcpSocket){
@@ -27,12 +24,6 @@ void SCStatusTcp::releaseTcpSocket()
     }
 }
 
-/** 连接
- * @brief SCStatusTcp::connectHost
- * @param ip
- * @param port
- * @return
- */
 int SCStatusTcp::connectHost(const QString&ip,quint16 port)
 {
     int ret = 0;
@@ -59,13 +50,6 @@ int SCStatusTcp::connectHost(const QString&ip,quint16 port)
     return ret;
 }
 
-/** TCP请求
- * @brief SCStatusTcp::writeTcpData
- * @param sendCommand 报文类型
- * @param sendData 数据区数据
- * @param number 序号
- * @return
- */
 bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
                                const QByteArray &sendData,
                                uint16_t &number)
@@ -158,6 +142,7 @@ bool SCStatusTcp::writeTcpData(uint16_t sendCommand,
     }
     return true;
 }
+
 void SCStatusTcp::receiveTcpReadyRead()
 {
     //读取所有数据
@@ -212,7 +197,7 @@ void SCStatusTcp::receiveTcpReadyRead()
                                                           "序号: %4 (0x%5)\n"
                                                           "头部十六进制: %6\n"
                                                           "数据区[size:%7 (0x%8)]: %9 \n"
-                                                          "数据区十六进制: %10 \n"))
+                                                          "数据区十六进制: %10 \n" ))
                             .arg(getCurrentDateTime())
                             .arg(revCommand)
                             .arg(QString::number(revCommand,16))
@@ -264,7 +249,6 @@ void SCStatusTcp::setTimeOut(int timeOut)
     _timeOut = timeOut;
 }
 
-
 QTcpSocket *SCStatusTcp::tcpSocket() const
 {
     return _tcpSocket;
@@ -284,19 +268,12 @@ QString SCStatusTcp::lastError() const
 {
     return _lastError;
 }
-/** 获取当前时间
- * @brief SCStatusTcp::getCurrentDateTime
- * @return
- */
+
 QString SCStatusTcp::getCurrentDateTime()const
 {
     return QDateTime::currentDateTime().toString("[yyyyMMdd|hh:mm:ss:zzz]:");
 }
-/** 16进制全部显示大写
- * @brief SCStatusTcp::hexToQString
- * @param b
- * @return
- */
+
 QString SCStatusTcp::hexToQString(const QByteArray &b)
 {
     QString str;

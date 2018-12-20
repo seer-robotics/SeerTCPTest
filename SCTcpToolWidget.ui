@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1119</width>
+    <width>1160</width>
     <height>762</height>
    </rect>
   </property>
@@ -89,72 +89,106 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QComboBox" name="comboBox_port">
-                <item>
-                 <property name="text">
-                  <string>19204</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>19205</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>19206</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>19207</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>19208</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>19209</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>19210</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>19200</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="3" column="0">
+              <item row="2" column="0">
                <widget class="QLabel" name="label_9">
                 <property name="text">
                  <string>报文类型（API编号）:</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
-               <widget class="QLineEdit" name="lineEdit_sendCommand"/>
+              <item row="2" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_10">
+                <item>
+                 <widget class="QLineEdit" name="lineEdit_sendCommand">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>ArrowCursor</cursorShape>
+                  </property>
+                  <property name="mouseTracking">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="comboBox_sendCommand">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
-              <item row="4" column="0">
+              <item row="3" column="0">
                <widget class="QLabel" name="label_4">
                 <property name="text">
                  <string>序号：</string>
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
+              <item row="3" column="1">
                <widget class="QLineEdit" name="lineEdit_number"/>
               </item>
-              <item row="2" column="1">
-               <widget class="QComboBox" name="comboBox_allReq"/>
+              <item row="1" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_11">
+                <item>
+                 <widget class="QLineEdit" name="lineEdit_port">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>ArrowCursor</cursorShape>
+                  </property>
+                  <property name="mouseTracking">
+                   <bool>false</bool>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="comboBox_port">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </item>
@@ -270,17 +304,20 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
-               <widget class="QPushButton" name="pushButton_connect">
+               <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>开始连接</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;如有需要，请参考：&lt;a href=&quot;http://docs.seer-robotics.com/robokit_netprotocol/663328&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Robokit NetProtocol TCP API&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
-                <property name="checkable">
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_send">
+               <widget class="QPushButton" name="pushButton_connectAndSend">
                 <property name="text">
                  <string>发送</string>
                 </property>
