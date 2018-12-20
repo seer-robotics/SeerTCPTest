@@ -1,3 +1,4 @@
+
 libPath = $$PWD
 
 CONFIG(debug, debug|release){
