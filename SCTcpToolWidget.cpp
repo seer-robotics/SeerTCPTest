@@ -5,7 +5,6 @@
 #include <QFileDialog>
 #include <QHostInfo>
 
-
 SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SCTcpToolWidget)
@@ -57,6 +56,7 @@ void SCTcpToolWidget::initDb()
 
     //---------------------------------------
     // 把端口添加到界面上
+    qDebug() << _pSqliteClass->getProtocol()->ReqValueReqMap;
     QList<int> ilistPorts;
     QMap<int, int> portMap = _pSqliteClass->getProtocol()->ReqValuePortMap;
 
@@ -228,7 +228,11 @@ void SCTcpToolWidget::slotSendCommandChanged(int index)
 
     if (iAPIID < 10000)
     {
+        // 显示当前指令的编号
         ui->lineEdit_sendCommand->setText(QString::number(iAPIID));
+
+        // 显示当前指令的名称
+        ui->lineEdit_commandName->setText(_pSqliteClass->getProtocol()->ReqValueReqMap.value(iAPIID));
     }
 
 }
