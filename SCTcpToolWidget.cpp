@@ -422,13 +422,6 @@ void SCTcpToolWidget::on_checkBox_timeOut_clicked(bool checked)
 
 void SCTcpToolWidget::timerEvent(QTimerEvent *event)
 {
-#if TEST
-    if(event->timerId() == _queryTimeID){
-        if(ui->pushButton_connectAndSend->isEnabled()){
-            sendCommand();
-        }
-    }
-#else
     // 先建立连接，然后再开始定时发送指令
     if (_pSCStatusTcp->tcpSocket() && _pSCStatusTcp->tcpSocket()->state()==QAbstractSocket::ConnectedState) {
         qDebug() << "connected";
@@ -448,8 +441,6 @@ void SCTcpToolWidget::timerEvent(QTimerEvent *event)
             qDebug() << "unconnected";
         }
     }
-
-#endif
 }
 
 void SCTcpToolWidget::myKillTimer(int id)
@@ -464,7 +455,8 @@ void SCTcpToolWidget::on_checkBox_queryTime_clicked(bool checked)
     if(checked){
         myConnect(); // 先建立连接
         _queryTimeID = this->startTimer(ui->spinBox_queryTime->value());
-
+        ui->comboBox_port->setEnabled(false);
+        ui->comboBox_sendCommand->setEnabled(false);
     }else{
         if (_queryTimeID > 0) {
             myKillTimer(_queryTimeID);
@@ -473,6 +465,8 @@ void SCTcpToolWidget::on_checkBox_queryTime_clicked(bool checked)
         if (_reqFinished) { // 在发送完指令，并接受到响应之后再断开连接
             _reqFinished = false; // 提前重置标志，防止界面上输出多有的信息
            _pSCStatusTcp->releaseTcpSocket();
+           ui->comboBox_port->setEnabled(true);
+           ui->comboBox_sendCommand->setEnabled(true);
         }
     }
 
