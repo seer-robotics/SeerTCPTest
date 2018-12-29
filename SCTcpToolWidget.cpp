@@ -56,7 +56,6 @@ void SCTcpToolWidget::initDb()
 
     //---------------------------------------
     // 把端口添加到界面上
-    qDebug() << _pSqliteClass->getProtocol()->ReqValueReqMap;
     QList<int> ilistPorts;
     QMap<int, int> portMap = _pSqliteClass->getProtocol()->ReqValuePortMap;
 
@@ -178,13 +177,14 @@ void SCTcpToolWidget::sendCommand()
         //发送数据
         if(!_pSCStatusTcp->writeTcpData(sendCommand,sendData,number)) {
             slotPrintInfo(QString(QStringLiteral("<font color=\"red\">"
-                                                 "%1--------- 发送错误----------\n"
-                                                 "发送的报文类型:%2  \n"
-                                                 "错误: %3"
+                                                 "%1--------- 发送错误---------- <br />" // 用html的语言的“<br />”实现换行，“\n”在此处不能实现换行
+                                                 "发送的报文类型:%2  <br />"
+                                                 "错误: %3 "
                                                  "</font>"))
                           .arg(_pSCStatusTcp->getCurrentDateTime())
                           .arg(sendCommand)
                           .arg(_pSCStatusTcp->lastError()));
+
             ui->textEdit_info->append("<font color = \"black\"> &nbsp; </font>");
         }
     }
@@ -355,19 +355,20 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
     }else{
 
         slotPrintInfo(QString(QStringLiteral("<font color=\"red\">"
-                                             "%1--------- 返回错误----------\n"
-                                             "报文类型:%2  \n"
+                                             "%1--------- 返回错误---------- <br />"
+                                             "报文类型:%2  <br />"
                                              "错误: %3"
                                              "</font>"))
                       .arg(_pSCStatusTcp->getCurrentDateTime())
                       .arg(revCommand)
                       .arg(_pSCStatusTcp->lastError()));
 
+        ui->textEdit_info->append("<font color = \"black\"> &nbsp; </font>");
+
         ui->textEdit_revData->setText(QString(revData));
         ui->label_revText->setText(QString(QStringLiteral("响应的错误: %1 \t\n"))
                                    .arg(_pSCStatusTcp->lastError()));
 
-        ui->textEdit_info->append("<font color = \"black\"> &nbsp; </font>");
     }
 
     // 发送指令成功并接收到返回值后，可以断开连接
@@ -421,7 +422,7 @@ void SCTcpToolWidget::on_checkBox_timeOut_clicked(bool checked)
 
 void SCTcpToolWidget::timerEvent(QTimerEvent *event)
 {
-#if !TEST
+#if TEST
     if(event->timerId() == _queryTimeID){
         if(ui->pushButton_connectAndSend->isEnabled()){
             sendCommand();
@@ -463,6 +464,7 @@ void SCTcpToolWidget::on_checkBox_queryTime_clicked(bool checked)
     if(checked){
         myConnect(); // 先建立连接
         _queryTimeID = this->startTimer(ui->spinBox_queryTime->value());
+
     }else{
         if (_queryTimeID > 0) {
             myKillTimer(_queryTimeID);
