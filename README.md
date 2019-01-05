@@ -15,8 +15,6 @@ email: support@seer-robotics.com
 ## 注意事项
 1 打开工程后，选择Release方式构建工程，否则运行之后程序将无法加载数据库的内容。
 
-2 
-
 
 ## 使用说明
 用途：用于测试RoboKit NetProtocol TCP API，并且可通过此工具发送对应的指令实现对我司机器人的控制。
@@ -24,11 +22,11 @@ email: support@seer-robotics.com
 
 ### 功能介绍
 成功运行程序后，会出现如下图所示的界面，包括：请求、响应以及日志三部分。
-![image](https://github.com/huchangquan/NavTools/blob/master/Preview/20190105.gif)
+![image](https://github.com/seer-robotics/SeerTCPTest/tree/master/Previews/20190105141205.png)
 
 ### 请求编辑模块
 如下图所示，为此工具的请求编辑模块。
-![image]()
+![image](https://github.com/seer-robotics/SeerTCPTest/tree/master/Previews/20190105165453.png)
 
 ① IP:目标机器人的IP地址。
 
@@ -94,6 +92,8 @@ email: support@seer-robotics.com
 
 ### 响应模块
 如下图所示，为此工具的响应模块。左侧为初始化时，还没有接收到响应的界面；右侧为接收到响应后的界面。
+![image](https://github.com/seer-robotics/SeerTCPTest/tree/master/Previews/20190105161530.png)
+![image](https://github.com/seer-robotics/SeerTCPTest/tree/master/Previews/20190105170941.png)
 
 ① 响应的基本参数。
 
@@ -107,6 +107,7 @@ email: support@seer-robotics.com
 
 ### 日志模块
 如下图所示，为此此工具的日志模块。
+![image](https://github.com/seer-robotics/SeerTCPTest/tree/master/Previews/20190105141456.png)
 
 ① 是否自动滚动：勾选时，始终显示最新的日志。
 
