@@ -12,7 +12,11 @@ SqliteClass::~SqliteClass()
     //之所以这么写，是为了消除警告
     //QSqlDatabasePrivate::removeDatabase: connection 'XXX' is still in use, all queries will cease to work
 
-    QSqlDatabase *db = & QSqlDatabase::database(_connectionName);
+    QSqlDatabase dbTmp;
+    dbTmp.database(_connectionName);
+    QSqlDatabase *db = &dbTmp;
+
+//    QSqlDatabase *db = & QSqlDatabase::database(_connectionName);
     if(db->isValid() ){
         if(db->isOpen())
             db->close();
@@ -53,7 +57,7 @@ bool SqliteClass::createConnection(const QString & filePath)
     return true;
 }
 
-QSqlDatabase & SqliteClass::dbConnection()
+QSqlDatabase  SqliteClass::dbConnection()
 {
     QSqlDatabase db = QSqlDatabase::database(_connectionName);
 

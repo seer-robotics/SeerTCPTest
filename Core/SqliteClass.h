@@ -102,7 +102,7 @@ public:
      * @brief dbConnection - 打开数据库
      * @return
      */
-    QSqlDatabase & dbConnection();
+    QSqlDatabase dbConnection();
 
     /**
      * @brief createConnection - 连接数据库
