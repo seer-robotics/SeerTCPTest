@@ -10,7 +10,7 @@ email: support@seer-robotics.com
 ## 推荐配置环境
 操作系统：Win10 x64
 
-编程环境：QT Creator 5.9.4 MSVC14
+编程环境：QT Creator 5.9.4 MSVC14(vs2015)
 
 ## 注意事项
 1 打开工程后，选择Release方式构建工程，否则运行之后程序将无法加载数据库的内容。
@@ -27,7 +27,7 @@ email: support@seer-robotics.com
 
 ### 请求编辑模块
 如下图所示，为此工具的请求编辑模块。
-![image]()
+![image](https://github.com/seer-robotics/SeerTCPTest/blob/master/Previews/20190105165453.png)
 
 ① IP:目标机器人的IP地址。
 
@@ -93,6 +93,8 @@ email: support@seer-robotics.com
 
 ### 响应模块
 如下图所示，为此工具的响应模块。左侧为初始化时，还没有接收到响应的界面；右侧为接收到响应后的界面。
+![image](https://github.com/seer-robotics/SeerTCPTest/blob/master/Previews/20190105161530.png)
+![image](https://github.com/seer-robotics/SeerTCPTest/blob/master/Previews/20190105170941.png)
 
 ① 响应的基本参数。
 
@@ -106,6 +108,7 @@ email: support@seer-robotics.com
 
 ### 日志模块
 如下图所示，为此此工具的日志模块。
+![image](https://github.com/seer-robotics/SeerTCPTest/blob/master/Previews/20190105141456.png)
 
 ① 是否自动滚动：勾选时，始终显示最新的日志。
 
