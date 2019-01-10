@@ -9,7 +9,7 @@ QT       += core gui network sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG += c++11
 
-TARGET = SeerTCPTest
+TARGET = SeerTools
 TEMPLATE = app
 include(libconfig.prf)
 
