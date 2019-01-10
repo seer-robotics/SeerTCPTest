@@ -57,7 +57,10 @@ public:
      */
     void resetDateTime();
 
-
+    /** 拷贝qrc中的文件
+     * @brief SCTcpToolWidget::copyQrcFile
+     */
+    bool copyQrcFile(const QString &from, const QString &to);
 public slots:
 
     /**

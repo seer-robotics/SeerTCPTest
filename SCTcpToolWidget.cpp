@@ -4,6 +4,7 @@
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QHostInfo>
+#include <QUrl>
 
 SCTcpToolWidget::SCTcpToolWidget(QWidget *parent) :
     QWidget(parent),
@@ -39,10 +40,28 @@ SCTcpToolWidget::~SCTcpToolWidget()
     delete ui;
 }
 
+bool SCTcpToolWidget::copyQrcFile(const QString & from,const QString & to)
+{
+    QFile fileFrom(from);
+    QFile fileTo(to);
+    if(!fileFrom.open(QIODevice::ReadOnly)){
+        SCWarning<<"read failed: from:"<<from;
+        return false;
+    }
+
+    if(!fileTo.open(QIODevice::WriteOnly)){
+        SCWarning<<"write failed: to:"<<to;
+        return false;
+    }
+    fileTo.write(fileFrom.readAll());
+    return true;
+}
+
 void SCTcpToolWidget::initDb()
 {
     _pSqliteClass = new SqliteClass(this);
-    if(!_pSqliteClass->createConnection(QFileInfo("./Roboshop.db").absoluteFilePath())){
+    copyQrcFile(":/resource/Roboshop.db","./Roboshop.db");
+    if(!_pSqliteClass->createConnection("Roboshop.db")){
         SCWarning<<_pSqliteClass->errorString();
         return;
     }
@@ -71,10 +90,10 @@ void SCTcpToolWidget::initDb()
         } else { // 对比从第二个开始的端口号，并将不重复的端口号添加到
             bool blRepeated = false;
             foreach (int iPort, ilistPorts) {
-               if (iPortTmp == iPort) {
+                if (iPortTmp == iPort) {
                     blRepeated = true;
                     break;
-               }
+                }
             }
 
             // 把没有重复的端口号添加到列表中
@@ -245,7 +264,7 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
         info = "QAbstractSocket::UnconnectedState";
         ui->pushButton_connectAndSend->setEnabled(true);
         ui->checkBox_queryTime->setEnabled(true);
-//        qDebug() << QStringLiteral("开始连接");
+        //        qDebug() << QStringLiteral("开始连接");
         ui->textEdit_info->append(QString(QStringLiteral("连接已断开！！！")));
 
         break;
@@ -256,12 +275,12 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
 
     case QAbstractSocket::ConnectingState:
         info = "QAbstractSocket::ConnectingState";
-//        qDebug() << QStringLiteral("正在连接...");
+        //        qDebug() << QStringLiteral("正在连接...");
         ui->pushButton_connectAndSend->setEnabled(false);
         break;
     case QAbstractSocket::ConnectedState:
         info = "QAbstractSocket::ConnectedState \n";
-//        qDebug() << QStringLiteral("断开连接");
+        //        qDebug() << QStringLiteral("断开连接");
         ui->pushButton_connectAndSend->setEnabled(false);
         break;
     case QAbstractSocket::BoundState:
@@ -275,7 +294,7 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
     case QAbstractSocket::ClosingState:
         info = "QAbstractSocket::ClosingState";
         ui->pushButton_connectAndSend->setEnabled(false);
-//        qDebug() << QStringLiteral("开始连接");
+        //        qDebug() << QStringLiteral("开始连接");
         break;
     }
 
@@ -464,9 +483,9 @@ void SCTcpToolWidget::on_checkBox_queryTime_clicked(bool checked)
         }
         if (_reqFinished) { // 在发送完指令，并接受到响应之后再断开连接
             _reqFinished = false; // 提前重置标志，防止界面上输出多有的信息
-           _pSCStatusTcp->releaseTcpSocket();
-           ui->comboBox_port->setEnabled(true);
-           ui->comboBox_sendCommand->setEnabled(true);
+            _pSCStatusTcp->releaseTcpSocket();
+            ui->comboBox_port->setEnabled(true);
+            ui->comboBox_sendCommand->setEnabled(true);
         }
     }
 

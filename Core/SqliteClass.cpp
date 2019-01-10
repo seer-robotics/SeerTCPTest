@@ -14,10 +14,8 @@ SqliteClass::~SqliteClass()
 
     QSqlDatabase dbTmp;
     dbTmp.database(_connectionName);
-    QSqlDatabase *db = &dbTmp;
-
-//    QSqlDatabase *db = & QSqlDatabase::database(_connectionName);
-    if(db->isValid() ){
+    if(dbTmp.isValid()){
+        QSqlDatabase *db = &dbTmp;
         if(db->isOpen())
             db->close();
         QSqlDatabase::removeDatabase(_connectionName);
@@ -48,10 +46,10 @@ bool SqliteClass::createConnection(const QString & filePath)
 
     if(!db.isValid()){ //如果db不可用，则添加
         db = QSqlDatabase::addDatabase("QSQLITE", _connectionName);
-        db.setDatabaseName(filePath);
+        db.setDatabaseName(fileInfo.absoluteFilePath());
     }
     if( !db.open()){ //判断db是否已经打开
-        setErrorString(tr("Sqlite not open").arg(filePath));
+        setErrorString(tr("Sqlite not open: %1").arg(fileInfo.absoluteFilePath()));
         return false;
     }
     return true;
