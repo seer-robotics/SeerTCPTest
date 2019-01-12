@@ -10,12 +10,7 @@ email: support@seer-robotics.com
 ## 推荐配置环境(开发时的环境)
 操作系统：Win10 x64
 
-编程环境：QT Creator 5.9.4 MSVC14(vs2015)
-
-## 注意事项
-1 打开工程后，选择Release方式构建工程，否则运行之后程序将无法加载数据库。
-
-
+编程环境：QT Creator 5.9.4 
 
 ## 使用说明
 用途：用于测试RoboKit NetProtocol TCP API，并且可通过此工具发送对应的指令实现对我司机器人的控制。

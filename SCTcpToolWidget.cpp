@@ -262,8 +262,8 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
     switch (state) {
     case QAbstractSocket::UnconnectedState:
         info = "QAbstractSocket::UnconnectedState";
-        ui->pushButton_connectAndSend->setEnabled(true);
         ui->checkBox_queryTime->setEnabled(true);
+        ui->pushButton_connectAndSend->setEnabled(true);
         //        qDebug() << QStringLiteral("开始连接");
         ui->textEdit_info->append(QString(QStringLiteral("连接已断开！！！")));
 
@@ -311,7 +311,7 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
 
     if (_reqFinished && !ui->checkBox_queryTime->isChecked()) { // 断开当前的连接
         _reqFinished = false;
-        ui->textEdit_info->append(QString(QStringLiteral("指令发送完成，正在断开连接...")));
+        ui->textEdit_info->append(QString(QStringLiteral("指令发送完成，断开连接")));
         _pSCStatusTcp->releaseTcpSocket();
         ui->checkBox_queryTime->setEnabled(true);
 
@@ -470,13 +470,11 @@ void SCTcpToolWidget::myKillTimer(int id)
 
 void SCTcpToolWidget::on_checkBox_queryTime_clicked(bool checked)
 {
-    qDebug() << "query time";
+    qDebug() << "query time" << checked;
     if(checked){
         myConnect(); // 先建立连接
         _queryTimeID = this->startTimer(ui->spinBox_queryTime->value());
-        ui->comboBox_port->setEnabled(false);
-        ui->comboBox_sendCommand->setEnabled(false);
-    }else{
+    }else {
         if (_queryTimeID > 0) {
             myKillTimer(_queryTimeID);
             resetDateTime();
@@ -484,8 +482,6 @@ void SCTcpToolWidget::on_checkBox_queryTime_clicked(bool checked)
         if (_reqFinished) { // 在发送完指令，并接受到响应之后再断开连接
             _reqFinished = false; // 提前重置标志，防止界面上输出多有的信息
             _pSCStatusTcp->releaseTcpSocket();
-            ui->comboBox_port->setEnabled(true);
-            ui->comboBox_sendCommand->setEnabled(true);
         }
     }
 
@@ -512,4 +508,27 @@ void SCTcpToolWidget::on_pushButton_connectAndSend_clicked(bool checked)
 void SCTcpToolWidget::resetDateTime()
 {
     _dateTime = QTime(0, 0, 0, 0);
+}
+
+void SCTcpToolWidget::on_checkBox_queryTime_stateChanged(int arg1)
+{
+    bool enable;
+    qDebug() << "current state: " << arg1;
+    if (arg1 == 0) {// 未勾选状态
+        // 激活comboBox和pushButton
+        enable = true;
+        ui->comboBox_port->setEnabled(enable);
+        ui->comboBox_sendCommand->setEnabled(enable);
+        ui->pushButton_connectAndSend->setEnabled(enable);
+
+        // 放弃连接
+        _pSCStatusTcp->releaseTcpSocket();
+
+    } else if (arg1 == 2) { // 勾选状态
+        // 抑制comboBox和pushButton
+        bool enable = false;
+        ui->comboBox_port->setEnabled(enable);
+        ui->comboBox_sendCommand->setEnabled(enable);
+        ui->pushButton_connectAndSend->setEnabled(enable);
+    }
 }

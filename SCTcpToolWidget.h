@@ -129,7 +129,9 @@ private slots:
     /**
      * @brief on_checkBox_timeOut_clicked - 设置超时
      * @param checked - true：启用超时；false：不启用
-     */
+     void on_checkBox_queryTime_stateChanged(int arg1);
+
+*/
     void on_checkBox_timeOut_clicked(bool checked);
 
     /**
@@ -137,6 +139,12 @@ private slots:
      * @param checked - true:启用；false：不启用
      */
     void on_checkBox_queryTime_clicked(bool checked);
+
+    /**
+     * @brief on_checkBox_queryTime_stateChanged - 根据是否定时发送，设置界面控件的状态
+     * @param arg1 - checkBox的状态
+     */
+    void on_checkBox_queryTime_stateChanged(int arg1);
 
 
 
