@@ -61,6 +61,9 @@ public:
      * @brief SCTcpToolWidget::copyQrcFile
      */
     bool copyQrcFile(const QString &from, const QString &to);
+
+
+
 public slots:
 
     /**
@@ -109,6 +112,12 @@ public slots:
      */
     void slotSendCommandChanged(int index);
 
+    /**
+     * @brief slotCommandNameChanged - 同步显示当前指令的编号和类型
+     * @param index - 被选中的指令的编号
+     */
+    void slotCommandNameChanged(int index);
+
 private slots:
     /**
      * @brief on_pushButton_connectAndSend_clicked - 创建连接并发送指令
@@ -145,6 +154,7 @@ private slots:
      * @param arg1 - checkBox的状态
      */
     void on_checkBox_queryTime_stateChanged(int arg1);
+
 
 
 

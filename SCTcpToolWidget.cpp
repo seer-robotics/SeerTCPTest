@@ -72,6 +72,7 @@ void SCTcpToolWidget::initDb()
 
     connect(ui->comboBox_port, SIGNAL(currentIndexChanged(QString)), this, SLOT(slotPortChanged(QString)));
     connect(ui->comboBox_sendCommand, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSendCommandChanged(int)));
+    connect(ui->comboBox_commandName, SIGNAL(currentIndexChanged(int)), this, SLOT(slotCommandNameChanged(int)));
 
     //---------------------------------------
     // 把端口添加到界面上
@@ -232,6 +233,17 @@ void SCTcpToolWidget::slotPortChanged(QString portDescription)
             ui->comboBox_sendCommand->addItem(_reqDescriptionMap.value(key));
         }
     }
+
+    // 清空之前显示的API名称
+    ui->comboBox_commandName->clear();
+    // 显示与此端口相关的所有API名称
+    for (int l = 0; l < _pSqliteClass->getProtocol()->ReqValueReqMap.count(); l ++) {
+        auto key1 = _pSqliteClass->getProtocol()->ReqValueReqMap.keys().at(l);
+        if (_pSqliteClass->getProtocol()->getPort(key1) == iPort) {
+            ui->comboBox_commandName->addItem(
+                        _pSqliteClass->getProtocol()->ReqValueReqMap.value(key1));
+        }
+    }
 }
 
 void SCTcpToolWidget::slotSendCommandChanged(int index)
@@ -251,9 +263,35 @@ void SCTcpToolWidget::slotSendCommandChanged(int index)
         ui->lineEdit_sendCommand->setText(QString::number(iAPIID));
 
         // 显示当前指令的名称
-        ui->lineEdit_commandName->setText(_pSqliteClass->getProtocol()->ReqValueReqMap.value(iAPIID));
+        ui->comboBox_commandName->blockSignals(true);
+        ui->comboBox_commandName->setCurrentText(_pSqliteClass->getProtocol()->ReqValueReqMap.value(iAPIID));
+        ui->comboBox_commandName->blockSignals(false);
     }
+}
 
+void SCTcpToolWidget::slotCommandNameChanged(int index)
+{
+    qDebug() << "name ......................." << index;
+    // 过滤索引值为负数时导致读取错误信息的情况
+    if (index < 0)
+        return;
+
+    // 当前指令的编号
+
+    int iAPIID = _pSqliteClass->getProtocol()->ReqValueReqMap.key(
+                ui->comboBox_commandName->itemText(index));
+    qDebug() << iAPIID;
+
+    if (iAPIID < 10000)
+    {
+        // 显示当前指令的编号
+        ui->lineEdit_sendCommand->setText(QString::number(iAPIID));
+
+        // 显示当前指令的名称
+        ui->comboBox_sendCommand->blockSignals(true);
+        ui->comboBox_sendCommand->setCurrentText(_reqDescriptionMap.value(iAPIID));
+        ui->comboBox_sendCommand->blockSignals(false);
+    }
 }
 
 void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
@@ -532,3 +570,4 @@ void SCTcpToolWidget::on_checkBox_queryTime_stateChanged(int arg1)
         ui->pushButton_connectAndSend->setEnabled(enable);
     }
 }
+
