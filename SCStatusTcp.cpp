@@ -1,6 +1,6 @@
 ﻿#include "SCStatusTcp.h"
 #include "SCHeadData.h"
-
+#include <QNetworkProxy>
 
 SCStatusTcp::SCStatusTcp(QObject *parent) : QObject(parent)
 {
@@ -29,6 +29,9 @@ int SCStatusTcp::connectHost(const QString&ip,quint16 port)
     int ret = 0;
     if(!_tcpSocket){
         _tcpSocket = new QTcpSocket(this);
+        //禁用代理
+        _tcpSocket->setProxy(QNetworkProxy::NoProxy);
+        //连接槽
         connect(_tcpSocket, SIGNAL(readyRead()), this, SLOT(receiveTcpReadyRead()));
         connect(_tcpSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
                 this->parent(), SLOT(stateChanged(QAbstractSocket::SocketState)));
