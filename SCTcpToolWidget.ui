@@ -455,30 +455,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>页</string>
-      </attribute>
-      <widget class="QLineEdit" name="lineEdit_commandName">
-       <property name="geometry">
-        <rect>
-         <x>330</x>
-         <y>150</y>
-         <width>462</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="cursor">
-        <cursorShape>ArrowCursor</cursorShape>
-       </property>
-       <property name="mouseTracking">
-        <bool>false</bool>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </widget>
     </widget>
    </item>
    <item>
