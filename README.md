@@ -3,17 +3,17 @@ SeerTCPTest
 
 源码及 QT 工程, 可作例程参考
 
-email: support@seer-robotics.com
+email: support@seer-group.com
 
 
 
 ## 推荐配置环境(开发时的环境)
 操作系统：Win10 x64
 
-编程环境：QT Creator 5.9.4 
+编程环境：QT Creator 5.9.4
 
 ## 使用说明
-用途：用于测试RoboKit NetProtocol TCP API，并且可通过此工具发送对应的指令实现对我司机器人的控制。
+用途：用于测试 Robokit NetProtocol TCP API，并且可通过此工具发送对应的指令实现对我司机器人的控制。
 
 
 ### 功能介绍
