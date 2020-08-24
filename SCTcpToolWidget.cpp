@@ -300,38 +300,38 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
     switch (state) {
     case QAbstractSocket::UnconnectedState:
         info = "QAbstractSocket::UnconnectedState";
-//        ui->checkBox_queryTime->setEnabled(true);
-//        ui->pushButton_connectAndSend->setEnabled(true);
+        //        ui->checkBox_queryTime->setEnabled(true);
+        //        ui->pushButton_connectAndSend->setEnabled(true);
         //        qDebug() << QStringLiteral("开始连接");
-        ui->textEdit_info->append(QString(QStringLiteral("连接已断开！！！")));
+        ui->textEdit_info->append(QString(QStringLiteral("连接已断开")));
 
         break;
     case QAbstractSocket::HostLookupState:
         info = "QAbstractSocket::HostLookupState";
-//        ui->pushButton_connectAndSend->setEnabled(false);
+        //        ui->pushButton_connectAndSend->setEnabled(false);
         break;
 
     case QAbstractSocket::ConnectingState:
         info = "QAbstractSocket::ConnectingState";
         //        qDebug() << QStringLiteral("正在连接...");
-//        ui->pushButton_connectAndSend->setEnabled(false);
+        //        ui->pushButton_connectAndSend->setEnabled(false);
         break;
     case QAbstractSocket::ConnectedState:
         info = "QAbstractSocket::ConnectedState \n";
         //        qDebug() << QStringLiteral("断开连接");
-//        ui->pushButton_connectAndSend->setEnabled(false);
+        //        ui->pushButton_connectAndSend->setEnabled(false);
         break;
     case QAbstractSocket::BoundState:
         info = "QAbstractSocket::BoundState";
-//        ui->pushButton_connectAndSend->setEnabled(false);
+        //        ui->pushButton_connectAndSend->setEnabled(false);
         break;
     case QAbstractSocket::ListeningState:
         info = "QAbstractSocket::ListeningState";
-//        ui->pushButton_connectAndSend->setEnabled(false);
+        //        ui->pushButton_connectAndSend->setEnabled(false);
         break;
     case QAbstractSocket::ClosingState:
         info = "QAbstractSocket::ClosingState";
-//        ui->pushButton_connectAndSend->setEnabled(false);
+        //        ui->pushButton_connectAndSend->setEnabled(false);
         //        qDebug() << QStringLiteral("开始连接");
         break;
     }
@@ -346,16 +346,6 @@ void SCTcpToolWidget::stateChanged(QAbstractSocket::SocketState state)
     if (_pSCStatusTcp->tcpSocket()->state() == QAbstractSocket::ConnectedState) {
         sendCommand();
     }
-
-    if (_reqFinished && !ui->checkBox_queryTime->isChecked()) { // 断开当前的连接
-        _reqFinished = false;
-        ui->textEdit_info->append(QString(QStringLiteral("指令发送完成，断开连接")));
-        _pSCStatusTcp->releaseTcpSocket();
-//        ui->checkBox_queryTime->setEnabled(true);
-
-    } else {
-        // do nothing
-    }
 }
 
 void SCTcpToolWidget::receiveTcpError(QAbstractSocket::SocketError error)
@@ -368,7 +358,7 @@ void SCTcpToolWidget::receiveTcpError(QAbstractSocket::SocketError error)
                               .arg(ui->lineEdit_ip->text())
                               .arg(ui->lineEdit_port->text())); // 用红色字体显示错误信息
     ui->textEdit_info->append(QString("<font color = \"black\"> &nbsp; </font>")); // 用黑色字体显示正确信息
-//    ui->pushButton_connectAndSend->setEnabled(true);
+    //    ui->pushButton_connectAndSend->setEnabled(true);
     qDebug() << QStringLiteral("开始连接");
 
 }
@@ -430,7 +420,11 @@ void SCTcpToolWidget::slotChangedText(bool isOk,int revCommand,
 
     // 发送指令成功并接收到返回值后，可以断开连接
     _reqFinished = true;
-
+    if (_reqFinished && !ui->checkBox_queryTime->isChecked()) { // 断开当前的连接
+        _reqFinished = false;
+        ui->textEdit_info->append(QString(QStringLiteral("指令已接收完成，正在断开连接...")));
+        _pSCStatusTcp->releaseTcpSocket();
+    }
 }
 
 void SCTcpToolWidget::slotPrintInfo(QString info)
@@ -538,7 +532,7 @@ void SCTcpToolWidget::on_pushButton_connectAndSend_clicked(bool checked)
                     QMessageBox::Ok);
     } else {
         // 建立连接
-//        ui->checkBox_queryTime->setEnabled(false);
+        //        ui->checkBox_queryTime->setEnabled(false);
         myConnect();
     }
 }
@@ -557,7 +551,7 @@ void SCTcpToolWidget::on_checkBox_queryTime_stateChanged(int arg1)
         enable = true;
         ui->comboBox_port->setEnabled(enable);
         ui->comboBox_sendCommand->setEnabled(enable);
-//        ui->pushButton_connectAndSend->setEnabled(enable);
+        //        ui->pushButton_connectAndSend->setEnabled(enable);
 
         // 放弃连接
         _pSCStatusTcp->releaseTcpSocket();
@@ -567,7 +561,7 @@ void SCTcpToolWidget::on_checkBox_queryTime_stateChanged(int arg1)
         bool enable = false;
         ui->comboBox_port->setEnabled(enable);
         ui->comboBox_sendCommand->setEnabled(enable);
-//        ui->pushButton_connectAndSend->setEnabled(enable);
+        //        ui->pushButton_connectAndSend->setEnabled(enable);
     }
 }
 

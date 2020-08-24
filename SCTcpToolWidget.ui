@@ -26,7 +26,7 @@
       <string notr="true">font: 18pt &quot;微软雅黑&quot;;</string>
      </property>
      <property name="text">
-      <string>Seer Robotics 网络协议测试工具</string>
+      <string>SEER 网络协议测试工具</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -460,7 +460,7 @@
    <item>
     <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;© 2017 Seer Robotics.&lt;a href=&quot;https://github.com/seer-robotics/SeerTCPTest&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Source&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;© 2020 SEER.&lt;a href=&quot;https://github.com/seer-robotics/SeerTCPTest&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Source&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
