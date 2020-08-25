@@ -4,7 +4,7 @@
  *  |       1byte       |    1byte      | 2byte|       4byte       |           2byte          |     6byte     |  取决于头部中的数据区域长度  |
  *  |        0x5a       |      0x01     | 0x00 |        0x00        |          0x00            |     0x00      |         JSON序列化数据内容        |
  *
- *  详细内容可查阅手册：https://docs.seer-robotics.com/robokit_netprotocol/663328
+ *  详细内容可查阅手册：https://docs.seer-group.com/robokit_netprotocol/663329
  *
   */
 
